@@ -4,7 +4,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:intl/intl.dart';
-import 'package:practice_two/main.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 
@@ -124,7 +123,7 @@ class _AddProductPageState extends State<AddProductPage> {
                     child: TextFormField(
                      //initialValue: DateFormat.yMd().format(DateTime.now()),
                      controller: _dateTimeController,
-                     //enabled: false,
+                     enabled: false,
                      showCursor: false,
                      decoration: const InputDecoration(
                        label: Text("ДД.ММ.РРРР"),
@@ -165,7 +164,8 @@ class _AddProductPageState extends State<AddProductPage> {
 Widget _getSelectedWidget(BuildContext context, int index) {
   switch(index) {
     case 0:
-      return const AllProductList();
+      // ignore: prefer_const_constructors
+      return AllProductList();
     case 1:
       return ExpiredProductsList();
     case 2:
