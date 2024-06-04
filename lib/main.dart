@@ -20,8 +20,24 @@ class AddedProduct extends Product {
   DateTime endDate = DateTime.now();
   int count = 0;
   int productIndex = 0;
-
+  
   AddedProduct(this.endDate, this.count, this.productIndex) : super(products[productIndex].name, products[productIndex].imagePath, products[productIndex].barcode);
+  compareTo(AddedProduct comparable, bool forExpired) {
+    int result;
+    if (forExpired) {
+      result = endDate.compareTo(comparable.endDate);
+      if (result == 0) {
+        result = name.compareTo(comparable.name);
+      }
+    }
+    else {
+      result = name.compareTo(comparable.name);
+      if (result == 0) {
+        result = endDate.compareTo(comparable.endDate);
+      }
+    }
+    return result;
+  }
 }
 var products = List<Product>.generate(15, (index) => Product(("product$index"), "assets/images/test.jpg", "00000000000"));
 var addedProducts = List<AddedProduct>.generate(5, (index) => AddedProduct(index % 2 == 0 ? DateTime.now().subtract(const Duration(days: 3)) : DateTime.now(), index*2, index));
@@ -164,9 +180,11 @@ class _AddProductPageState extends State<AddProductPage> {
 Widget _getSelectedWidget(BuildContext context, int index) {
   switch(index) {
     case 0:
+      addedProducts.sort((first, second) => first.compareTo(second, false));
       // ignore: prefer_const_constructors
       return AllProductList();
     case 1:
+      addedProducts.sort((first, second) => first.compareTo(second, true));
       return ExpiredProductsList();
     case 2:
       return Text(index.toString());
@@ -177,12 +195,12 @@ Widget _getSelectedWidget(BuildContext context, int index) {
 class AllProductList extends StatefulWidget {
   const AllProductList({super.key});
 
+
   @override
   State<AllProductList> createState() => _AllProductListState();
 }
 
 class _AllProductListState extends State<AllProductList> {
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(child: ListView.separated(
@@ -214,11 +232,11 @@ class ExpiredProductsList extends StatelessWidget {
     return SafeArea(child: ListView.separated(
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: AssetImage(expiredProducts[index].imagePath),
-            ),
-            title: Text(expiredProducts[index].name),
-            subtitle: Text(expiredProducts[index].endDate.toLocal().toString()),
+              leading: CircleAvatar(
+                backgroundImage: AssetImage(products[index].imagePath),
+              ),
+              title: Text(addedProducts[index].name),
+              subtitle: Text('${DateFormat("dd.MM.yyyy").format(addedProducts[index].endDate)}\n' 'Прострочено на: ${DateTime.utc(addedProducts[index].endDate.year, addedProducts[index].endDate.month, addedProducts[index].endDate.day).difference(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day)).inDays.abs()} дні')
 
           );},
         separatorBuilder: (context, index) {
