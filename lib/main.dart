@@ -5,6 +5,8 @@ import 'package:number_selector/number_selector.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 
 class Product {
@@ -40,12 +42,35 @@ class AddedProduct extends Product {
   }
 }
 var products = List<Product>.generate(15, (index) => Product(("product$index"), "assets/images/test.jpg", "00000000000"));
-var addedProducts = List<AddedProduct>.generate(5, (index) => AddedProduct(index % 2 == 0 ? DateTime.now().subtract(const Duration(days: 3)) : DateTime.now(), index*2, index));
-void main() {
+var addedProducts = List<AddedProduct>.generate(5, (index) => AddedProduct(index % 2 == 0 ? DateTime.now().subtract(const Duration(days: 3)) : DateTime.now().add(const Duration(days:2)), index*2, index));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final db = openDatabase(
+    join(await getDatabasesPath(), 'products_db.db'),
+    onCreate: (db, version) {
+      return db.execute(
+        'CREATE TABLE Products('
+      //'ID INTEGER PRIMARY KEY AUTOINCREMENT,'
+      'Name TEXT,'
+      'Barcode TEXT PRIMARY KEY,'
+      'ImagePath TEXT'
+      ');'
+      'CREATE TABLE Entries('
+      'ID INTEGER PRIMARY KEY,'
+      'ProductBarcode TEXT,'
+            'EndDate TEXT'
+            'Qty INTEGER,'
+            'FOREIGN KEY(ProductBarcode) REFERENCES Products(Barcode)'
+      );
+
+  },
+    version : 1
+  );
   Intl.defaultLocale = 'ru_RU';
   products[0].barcode = "8594001021499";
   initializeDateFormatting('ru_RU', null).then((_) => runApp(const MaterialApp( localizationsDelegates: [
-    GlobalMaterialLocalizations.delegate
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate
   ],
       supportedLocales: [
         Locale('en'),
@@ -173,6 +198,13 @@ class _AddProductPageState extends State<AddProductPage> {
         ),
       );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _dateTimeController.dispose();
+  }
+
 
 
 }
