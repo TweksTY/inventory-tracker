@@ -82,6 +82,19 @@ class DatabaseService {
     }
   }
 
+  Future<List<Product>> getProducts() async {
+    final db = await database;
+    List<Map<String, Object?>> products = await db.rawQuery(
+        '''SELECT Name, ImagePath, Barcode
+        FROM Products
+        ORDER BY Name'''
+    );
+    return [
+      for (var product in products)
+        Product.fromMap(product)
+    ];
+  }
+
 
   Future<void> addEntry(String barcode, DateTime endDate, int qty) async {
     final db = await database;
@@ -92,6 +105,7 @@ class DatabaseService {
     });
   }
 
+  // TODO: Transfer to Entry class
   List<Entry> getEntriesFromMapList(List<Map<String, Object?>> entries) {
     return [
       for (final {

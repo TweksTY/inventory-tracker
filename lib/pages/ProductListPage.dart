@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:practice_two/models/Entry.dart';
+import 'package:practice_two/models/Product.dart';
 
-class AllProductList extends StatefulWidget {
-  final Future<List<Entry>> entries;
-  const AllProductList({required this.entries, super.key});
+class ProductListPage extends StatefulWidget {
+  final Future<List<Product>> entries;
+  const ProductListPage({required this.entries, super.key});
 
 
   @override
-  State<AllProductList> createState() => _AllProductListState();
+  State<ProductListPage> createState() => _ProductListPageState();
 }
 
-class _AllProductListState extends State<AllProductList> {
+class _ProductListPageState extends State<ProductListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Entry>>(
+    return FutureBuilder<List<Product>>(
         future: widget.entries,
-        builder: (BuildContext context, AsyncSnapshot<List<Entry>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
           if(snapshot.hasData) {
             return SafeArea(
                 child: ListView.separated(
@@ -27,9 +26,7 @@ class _AllProductListState extends State<AllProductList> {
                           backgroundImage: AssetImage(snapshot.data?[index].imagePath ?? "Помилка"),
                         ),
                         title: Text(snapshot.data?[index].name ?? "Помилка"),
-                        subtitle: Text(
-                            '${DateFormat("dd.MM.yyyy").format(snapshot.data?[index].endDate ?? DateTime.now())}\n'
-                            'Залишилось часу: ${DateTime.utc((snapshot.data?[index].endDate ?? DateTime.now()).year, (snapshot.data?[index].endDate ?? DateTime.now()).month, (snapshot.data?[index].endDate ?? DateTime.now()).day).difference(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day)).inDays}'),
+                        subtitle: Text('Код: ${snapshot.data?[index].barcode ?? "Помилка"}'),
                       );
                     },
                     separatorBuilder: (context, index) {

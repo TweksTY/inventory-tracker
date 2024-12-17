@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 import 'package:practice_two/pages/AllProductList.dart';
-import 'package:practice_two/pages/AddProductPage.dart';
+import 'package:practice_two/pages/AddEntryPage.dart';
 import 'package:practice_two/pages/ExpiredProductsList.dart';
+import 'package:practice_two/pages/ProductListPage.dart';
 import 'package:practice_two/pages/EnterBarcodePage.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
@@ -16,7 +17,7 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   final db = DatabaseService.instance;
-  final screenNames = <String>["Усі продукти", "Прострочені продукти", "Додавання продукту"];
+  final screenNames = <String>["Усі продукти", "Прострочені продукти", "Список продуктів"];
   int currentIndex = 0;
   @override
   Widget build(BuildContext context) {
@@ -27,9 +28,10 @@ class _RootPageState extends State<RootPage> {
 
       body: _getSelectedWidget(context, currentIndex),
       floatingActionButton: Visibility(
-        visible: currentIndex == 0 ? true : false,
+        visible: currentIndex == 0 || currentIndex == 2 ? true : false,
         child: FloatingActionButton(
           onPressed: () async{
+            if (currentIndex == 0) {
             //int productIndex = -1;
             //String barcodeScanResult = await FlutterBarcodeScanner.scanBarcode("#000000", "Ввести вручну", true, ScanMode.BARCODE);
             //if (barcodeScanResult == (-1).toString()) {
@@ -40,26 +42,28 @@ class _RootPageState extends State<RootPage> {
             //}
             Product? result = await db.getProduct('8594001021499');
             if (result != null) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductPage(product: result))
+              Navigator.push(context, MaterialPageRoute(builder: (context) => AddEntryPage(product: result))
               ).then((_) {setState(() {});}) ;
+              }
+            }
 
-            }},
+            },
           child: const Icon(Icons.add),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu),
-            label: "Усі продукти",
+            icon: const Icon(Icons.menu),
+            label: screenNames[0],
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.error),
-            label: "Прострочені продукти",
+            icon: const Icon(Icons.error),
+            label: screenNames[1],
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_box),
-            label: "Додати продукт",
+            icon: const Icon(Icons.add_box),
+            label: screenNames[2],
           ),
         ],
         currentIndex: currentIndex,
@@ -80,7 +84,7 @@ class _RootPageState extends State<RootPage> {
       case 1:
         return ExpiredProductsList(entries: db.getExpiredEntries());
       case 2:
-        return Text(index.toString());
+        return ProductListPage(entries: db.getProducts());
     }
     return Text(index.toString());
   }

@@ -9,8 +9,6 @@ class ExpiredProductsList extends StatelessWidget {
   ExpiredProductsList({required this.entries, super.key});
   final Future<List<Entry>> entries;
   final DatabaseService db = DatabaseService.instance;
-  //final List<Entry> entries = db.getExpiredEntries();
-  //final expiredProducts = List<AddedProduct>.from(addedProducts.where((element) => DateTime.utc(element.endDate.year, element.endDate.month, element.endDate.day).difference(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day)).inDays < 0));
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Entry>>(
@@ -35,7 +33,7 @@ class ExpiredProductsList extends StatelessWidget {
         );
       }
         else {
-        return const Text('aboba');
+        return const Text('Завантаження...');
       }});
 
   }

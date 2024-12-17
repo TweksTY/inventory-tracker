@@ -1,5 +1,3 @@
-import 'package:practice_two/models/Product.dart';
-
 class Entry {
   String name = 'Product name';
   String barcode = '0000000';

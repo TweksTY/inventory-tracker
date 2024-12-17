@@ -5,15 +5,15 @@ import 'package:intl/intl.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
 
-class AddProductPage extends StatefulWidget {
+class AddEntryPage extends StatefulWidget {
   final Product product;
-  const AddProductPage({required this.product, super.key});
+  const AddEntryPage({required this.product, super.key});
 
   @override
-  State<StatefulWidget> createState() => _AddProductPageState();
+  State<StatefulWidget> createState() => _AddEntryPageState();
 }
 
-class _AddProductPageState extends State<AddProductPage> {
+class _AddEntryPageState extends State<AddEntryPage> {
   late int value = 1;
   late DateTime dateTime;
   final TextEditingController _dateTimeController = TextEditingController();
