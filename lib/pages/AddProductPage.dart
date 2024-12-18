@@ -35,126 +35,78 @@ class _AddProductPageState extends State<AddProductPage> {
         title: const Text("Додавання продукту"),
       ),
       body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(30, 15, 15, 15),
-            child: Column(
+        child: Column(
+          children: [
+            Padding(padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const Text('Оберіть зображення:',
+                  style: TextStyle(fontSize: 20)
+                  ,),
+                GestureDetector(
+                    onTap: () async {
+                      await pickImage(context);
+                    },
+                    child: getImage()
+
+                )
+              ]
+            ),
+            ),
+            Padding(padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+              child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      onTap: () async {
-                        await pickImage(context);
-                      },
-                      child: getImage()
-
-                    ),
-                    Expanded(child: Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    child: TextFormField(
-                      controller: _NameController,
+                      Expanded(child: TextFormField(
+                        controller: _NameController,
+                        decoration: const InputDecoration(
+                            label: Text("Введіть ім'я"),
+                            border: OutlineInputBorder()
+                        ),
+                      ),
+                      )
+                    ]
+              ),
+            ),
+            Padding(padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+              child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(child: TextFormField(
+                      controller: _BarcodeController,
                       decoration: const InputDecoration(
-                          label: Text("Введіть ім'я"),
-                          //enabledBorder: OutlineInputBorder(),
+                          label: Text("Введіть штрихкод"),
                           border: OutlineInputBorder()
-                      ),))
-
+                      ),
+                    ),
                     )
+                  ]
+              ),
+            ),
+            Expanded(child: Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: Row(
+                children: [
+                  Expanded(child: Padding(
+              padding: EdgeInsets.fromLTRB(5, 0, 5, 15),
+              child: ElevatedButton(
+                child: Text('Підтвердити'),
+                onPressed: () => {print('aboba')},
+              ),
+            ) )
 
-                    //Expanded(child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),child: Text(widget.product.name, maxLines: 2, softWrap: true,),))
-                  ],
-                ),
-                Row(children: [
-                Expanded(child: TextFormField(
-                controller: _BarcodeController,
-                  decoration: const InputDecoration(
-                      label: Text("Введіть штрихкод"),
-                      //enabledBorder: OutlineInputBorder(),
-                      border: OutlineInputBorder()
-                  ),))
-                ]),
-//                Row(
-//                  children: [Expanded(
-//                      child: Padding(
-//                        padding: const EdgeInsets.only(top: 25),
-//                        child: Text(('Штрихкод:\n${widget.product.barcode}')
-//                        ),
-//                      )
-//                  )
-//                  ],
-//                ),
-//                const Row(
-//                  children: [
-//                    Text("Кількість:"),
-//                  ],),
-//                Row(
-//                  children: [
-//                    IntrinsicHeight(
-//                      child: NumberSelector(
-//                        current: 1,
-//                        min: 1,
-//                        max: 1000,
-//                        showMinMax: false,
-//                        contentPadding: 10,
-//                        hasCenteredText: true,
-//                        width: 150,
-//                        height: 50,
-//                        showSuffix: false,
-//                        onUpdate: (int number) {
-//                          setState(() {
-//                            value = number;
-//                          });
-//                        },
-//                      ),
-//                    )
-//                  ],
-//                ),
-//                const Row(
-//                  children: [
-//                    Padding(
-//                      padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-//                      child: Text("Дійсно до:"),
-//                    ),
-//                  ],
-//                ),
-//                Row(
-//                  children: [
-//                    Expanded(
-//                      child: TextFormField(
-//                        //initialValue: DateFormat.yMd().format(DateTime.now()),
-//                        controller: _dateTimeController,
-//                        enabled: false,
-//                        showCursor: false,
-//                        decoration: const InputDecoration(
-//                            label: Text("Оберіть дату"),
-//                            //enabledBorder: OutlineInputBorder(),
-//                            border: OutlineInputBorder()
-//                        ),
-//                      ),
-//                    ),
-//                    TextButton(onPressed: () async {
-//                      dateTime = await showDatePicker(context: context, locale: const Locale('ru', 'RU'), firstDate: DateTime.now(), lastDate: DateTime.now().add(const Duration(days:5000))) ?? DateTime.now();
-//                      _dateTimeController.text = DateFormat("dd.MM.yyyy").format(dateTime);
-//                      setState(() {
-//
-//                      });
-//                    }
-//                        , child: const Icon(Icons.edit_calendar))
-//                  ],
-//                ),
-//                Row(
-//                  children: [Expanded(child: ElevatedButton(
-//                    onPressed: () {
-//                      final db = DatabaseService.instance;
-//                      db.addEntry(widget.product.barcode, dateTime, value);
-//                      Navigator.pop(context);
-//                    },
-//                    child: const Text("Підтвердити"),
-//                  ))],
-//                )
-              ],
+                ],
+              ),
+            ))
+
+
+
+          ],
             ),
           )
-      ),
+      ,
     );
   }
 
@@ -164,7 +116,7 @@ class _AddProductPageState extends State<AddProductPage> {
         width: 150,
         height: 150,
         decoration: BoxDecoration(
-          image: DecorationImage(
+          image: const DecorationImage(
             fit: BoxFit.scaleDown,
             image: AssetImage(_defaultPath),
           ),
@@ -194,23 +146,56 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Future<void> pickImage(context) async {
-    String? result = await showModalBottomSheet(context: context, builder: (BuildContext context) => SafeArea(
-      child: Row(children: [Column(
-        children: [
-          ElevatedButton(
-            child: Text("Камера"),
-            onPressed: () async {
-              Navigator.pop(context, "camera");
-            },
-          ),
-          //ElevatedButton(
-          //    child: Text("Галерея")
-          //)
-        ],
-      )]),
+    String? result = await showModalBottomSheet(context: context, elevation: 50, builder: (BuildContext context) => SizedBox(height: 300, width: double.infinity,
+      child: Row(children: [
+        Expanded(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
+                  child: MaterialButton(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: const Text("Зробити фото"),
+                    onPressed: () async {
+                      Navigator.pop(context, "camera");
+                    },
+                ),),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
+                  child: MaterialButton(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: const Text("Обрати фото з галереї"),
+                    onPressed: () async {
+                      Navigator.pop(context, "gallery");
+                    },
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
+                  child: MaterialButton(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: const Text("Видалити фото"),
+                    onPressed: () async {
+                      Navigator.pop(context, "delete");
+                    },
+                  ),
+                ),
+              ],
+            )
+        )
+        ]),
     ));
     if (result == null) {
       return null;
+    }
+    if (result == "delete") {
+      setState(() {
+        _path = null;
+      });
+      return;
     }
     else {
       XFile? image = await ImagePicker().pickImage(source: result == "camera" ? ImageSource.camera : ImageSource.gallery);
