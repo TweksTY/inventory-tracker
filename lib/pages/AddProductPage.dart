@@ -44,40 +44,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        String? result = await showModalBottomSheet(context: context, builder: (BuildContext context) => SafeArea(
-                              child: Row(children: [Column(
-                                children: [
-                                  ElevatedButton(
-                                      child: Text("Камера"),
-                                      onPressed: () async {
-                                        Navigator.pop(context, "camera");
-                                      },
-                                  ),
-                                  //ElevatedButton(
-                                  //    child: Text("Галерея")
-                                  //)
-                                ],
-                              )]),
-                            ));
-                        print(result);
-                      if (result == null) {
-                        print("Діалог прервано");
-                        return;
-                      }
-                      else {
-                        XFile? image = await ImagePicker().pickImage(source: result == "camera" ? ImageSource.camera : ImageSource.gallery);
-                        if (image == null) {
-                          print("Не вдалося завантажити зображення");
-                          return;
-                        }
-                        File tmpFile = File(image?.path ?? _defaultPath);
-                        String newFilePath = join(await getApplicationDocumentsDirectory().then((dir)  {return dir.path;}), '${DateTime.now().toString()}${extension(tmpFile.path)}');
-                        image?.saveTo(newFilePath);
-                        print(newFilePath);
-                        setState(() {
-                          _path = newFilePath;
-                        });
-                      }
+                        await pickImage(context);
                       },
                       child: getImage()
 
@@ -226,6 +193,40 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
+  Future<void> pickImage(context) async {
+    String? result = await showModalBottomSheet(context: context, builder: (BuildContext context) => SafeArea(
+      child: Row(children: [Column(
+        children: [
+          ElevatedButton(
+            child: Text("Камера"),
+            onPressed: () async {
+              Navigator.pop(context, "camera");
+            },
+          ),
+          //ElevatedButton(
+          //    child: Text("Галерея")
+          //)
+        ],
+      )]),
+    ));
+    if (result == null) {
+      return null;
+    }
+    else {
+      XFile? image = await ImagePicker().pickImage(source: result == "camera" ? ImageSource.camera : ImageSource.gallery);
+      if (image == null) {
+        print("Не вдалося завантажити зображення");
+        return;
+      }
+      File tmpFile = File(image?.path ?? _defaultPath);
+      String newFilePath = join(await getApplicationDocumentsDirectory().then((dir)  {return dir.path;}), '${DateTime.now().toString()}${extension(tmpFile.path)}');
+    image?.saveTo(newFilePath);
+    print(newFilePath);
+    setState(() {
+    _path = newFilePath;
+    });
+  }
+  }
 
   @override
   void dispose() {
