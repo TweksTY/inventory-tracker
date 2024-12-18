@@ -2,7 +2,7 @@
 
 class Product {
   String name = "Product name";
-  String imagePath = "assets/images/test.jpg";
+  String? imagePath = "assets/images/test.jpg";
   String barcode = "000000000000";
 
   Product(this.name, this.imagePath, this.barcode);

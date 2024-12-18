@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/services/DatabaseService.dart';
+import 'package:practice_two/methods/getImageForList.dart';
 
 class ExpiredProductsList extends StatelessWidget {
 
@@ -15,20 +16,21 @@ class ExpiredProductsList extends StatelessWidget {
         future: entries,
         builder: (BuildContext context, AsyncSnapshot<List<Entry>> snapshot) {
       if(snapshot.hasData) {
+        var data = snapshot.data;
         return SafeArea(child: ListView.separated(
             itemBuilder: (BuildContext context, int index) {
               return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: AssetImage(snapshot.data?[index].imagePath ?? "Помилка"),
+                    backgroundImage: getImage(data?[index].imagePath),
                   ),
-                  title: Text(snapshot.data?[index].name ?? "Помилка"),
-                  subtitle: Text('${DateFormat("dd.MM.yyyy").format(snapshot.data?[index].endDate ?? DateTime.now())}\n' 'Прострочено на: ${DateTime.utc((snapshot.data?[index].endDate ?? DateTime.now()).year, (snapshot.data?[index].endDate ?? DateTime.now()).month, (snapshot.data?[index].endDate ?? DateTime.now()).day).difference(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day)).inDays.abs()} дні')
+                  title: Text(data?[index].name ?? "Помилка"),
+                  subtitle: Text('${DateFormat("dd.MM.yyyy").format(data?[index].endDate ?? DateTime.now())}\n' 'Прострочено на: ${DateTime.utc((data?[index].endDate ?? DateTime.now()).year, (data?[index].endDate ?? DateTime.now()).month, (data?[index].endDate ?? DateTime.now()).day).difference(DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day)).inDays.abs()} дні')
 
               );},
             separatorBuilder: (context, index) {
               return const Divider();
             },
-            itemCount: snapshot.data?.length ?? 0
+            itemCount: data?.length ?? 0
         )
         );
       }

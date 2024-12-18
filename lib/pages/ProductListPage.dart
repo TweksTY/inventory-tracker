@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:practice_two/methods/getImageForList.dart';
 import 'package:practice_two/models/Product.dart';
 
 class ProductListPage extends StatefulWidget {
@@ -18,15 +21,16 @@ class _ProductListPageState extends State<ProductListPage> {
         future: widget.entries,
         builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
           if(snapshot.hasData) {
+            var data = snapshot.data;
             return SafeArea(
                 child: ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
                       return ListTile(
                         leading: CircleAvatar(
-                          backgroundImage: AssetImage(snapshot.data?[index].imagePath ?? "Помилка"),
+                          backgroundImage: getImage(data?[index].imagePath),
                         ),
-                        title: Text(snapshot.data?[index].name ?? "Помилка"),
-                        subtitle: Text('Код: ${snapshot.data?[index].barcode ?? "Помилка"}'),
+                        title: Text(data?[index].name ?? "Помилка"),
+                        subtitle: Text('Код: ${data?[index].barcode ?? "Помилка"}'),
                       );
                     },
                     separatorBuilder: (context, index) {
@@ -39,5 +43,4 @@ class _ProductListPageState extends State<ProductListPage> {
           }
         });
   }
-
 }

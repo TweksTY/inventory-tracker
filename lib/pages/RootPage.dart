@@ -21,6 +21,13 @@ class _RootPageState extends State<RootPage> {
   final db = DatabaseService.instance;
   final screenNames = <String>["Усі продукти", "Прострочені продукти", "Список продуктів"];
   int currentIndex = 0;
+
+  void update() {
+    setState(() {
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +49,7 @@ class _RootPageState extends State<RootPage> {
             //}  else {
             //  productIndex = products.indexWhere((element) =>  element.barcode.compareTo(barcodeScanResult) == 0);
             //}
-            Product? result = await db.getProduct('8594001021499');
+            Product? result = await db.getProduct('12345');
             if (result != null) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => AddEntryPage(product: result))
               ).then((_) {setState(() {});}) ;
@@ -86,7 +93,7 @@ class _RootPageState extends State<RootPage> {
   Widget _getSelectedWidget(BuildContext context, int index) {
     switch(index) {
       case 0:
-        return AllProductList(entries: db.getEntries(),);
+        return AllProductList(entries: db.getEntries(), updateFunction: update,);
       case 1:
         return ExpiredProductsList(entries: db.getExpiredEntries());
       case 2:

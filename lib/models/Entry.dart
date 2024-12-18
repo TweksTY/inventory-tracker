@@ -4,8 +4,8 @@ class Entry {
   DateTime endDate = DateTime.now();
   int count = 0;
   String? imagePath = "";
-
-  Entry(this.name, this.barcode, this.endDate, this.count, [this.imagePath]);
+  int id = 0;
+  Entry(this.name, this.barcode, this.endDate, this.count, {required this.id, this.imagePath } );
 
   compareTo(Entry comparable, bool forExpired) {
     int result;

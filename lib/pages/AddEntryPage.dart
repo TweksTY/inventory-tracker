@@ -3,6 +3,7 @@ import 'package:practice_two/models/Product.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:intl/intl.dart';
 import 'package:practice_two/services/DatabaseService.dart';
+import 'package:practice_two/methods/getImage.dart';
 
 
 class AddEntryPage extends StatefulWidget {
@@ -31,12 +32,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
               children: [
                 Row(
                   children: [
-                    Image(
-                      height: 150,
-                      width: 150,
-                      fit: BoxFit.fitHeight,
-                      image: AssetImage(widget.product.imagePath),
-                    ),
+                    getImage(widget.product.imagePath),
                     Expanded(child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),child: Text(widget.product.name, maxLines: 2, softWrap: true,),))
                   ],
                 ),

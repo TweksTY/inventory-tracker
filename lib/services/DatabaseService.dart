@@ -29,7 +29,6 @@ class DatabaseService {
                   ')');
           await db.execute(
               'CREATE TABLE Entries('
-                  'ID INTEGER PRIMARY KEY,'
                   'ProductBarcode TEXT NOT NULL,'
                   'EndDate TEXT NOT NULL,'
                   'Qty INTEGER NOT NULL,'
@@ -49,18 +48,20 @@ class DatabaseService {
 
   Future<List<Entry>> getEntries() async {
     final db = await database;
+    print('enter');
     List<Map<String, Object?>> entries = await db.rawQuery(
-      '''SELECT Products.Name, Products.Barcode, Entries.EndDate, Entries.Qty, Products.ImagePath
+      '''SELECT Products.Name, Products.Barcode, Entries.EndDate, Entries.Qty, Products.ImagePath, Entries.ID
         FROM Entries
         JOIN Products ON Products.Barcode = Entries.ProductBarcode;'''
     );
+    print('exit');
     return getEntriesFromMapList(entries);
   }
 
   Future<List<Entry>> getExpiredEntries() async {
     final db = await database;
     List<Map<String, Object?>> entries = await db.rawQuery(
-        '''SELECT Products.Name, Products.Barcode, Entries.EndDate, Entries.Qty, Products.ImagePath
+        '''SELECT Products.Name, Products.Barcode, Entries.EndDate, Entries.Qty, Products.ImagePath, Entries.ID
         FROM Entries
         JOIN Products ON Products.Barcode = Entries.ProductBarcode
         WHERE Entries.EndDate < date()
@@ -96,6 +97,13 @@ class DatabaseService {
   }
 
 
+  Future<bool> checkIfProductExists(String barcode) async {
+    final db = await database;
+    List<Map<String, Object?>> products = await db.query('Products', where: 'Barcode = ?', whereArgs: [barcode]);
+    return products.isNotEmpty;
+  }
+
+
   Future<void> addEntry(String barcode, DateTime endDate, int qty) async {
     final db = await database;
     await db.insert('Entries', {
@@ -113,9 +121,22 @@ class DatabaseService {
       'Barcode' : barcode as String,
       'EndDate' : endDate as String,
       'Qty' : qty as int?,
-      'ImagePath' : imagePath as String
+      'ImagePath' : imagePath as String?,
+      'ID' : id as int
       } in entries)
-        Entry(name, barcode, DateTime.parse(endDate), qty ?? 0, imagePath)
+        Entry(name, barcode, DateTime.parse(endDate), qty ?? 0, imagePath: imagePath, id: id)
     ];
+  }
+  
+  Future<void> deleteEntry(int id) async {
+    final db = await database;
+    db.delete('Entries', where: 'ID = ?', whereArgs: [id]);
+  }
+
+  
+  void deleteProduct(String barcode) async {
+    final db = await database;
+    db.delete('Entries', where: 'Barcode = ?', whereArgs: [barcode]);
+    db.delete('Products', where: 'Barcode = ?', whereArgs: [barcode]);
   }
 }
