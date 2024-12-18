@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/methods/getImageForList.dart';
+import 'package:practice_two/pages/EditEntryPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 class AllProductList extends StatefulWidget {
   final Future<List<Entry>> entries;
@@ -34,8 +35,10 @@ class _AllProductListState extends State<AllProductList> {
                     itemBuilder: (BuildContext context, int index) {
                       return ListTile(
                         onTap: () async {
-                          await db.deleteEntry(data[index].id);
-                          widget.updateFunction();
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditEntryPage(entry: snapshot.data![index]))
+                          ).then((_) {setState(() {entries = db.getEntries();}); widget.updateFunction();});
+                          //await db.deleteEntry(data[index].id);
+
                         },
                         leading: CircleAvatar(
                           backgroundImage: getImage(data![index].imagePath),

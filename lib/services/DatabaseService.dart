@@ -71,6 +71,18 @@ class DatabaseService {
     return getEntriesFromMapList(entries);
   }
 
+  //Future<Entry> getEntry(int id) async {
+  //  final db = await database;
+  //  List<Map<String, Object?>> entries = await db.rawQuery(
+  //      '''SELECT Products.Name, Products.Barcode, Entries.EndDate, Entries.Qty, Products.ImagePath, Entries.ID
+  //      FROM Entries
+  //      JOIN Products ON Products.Barcode = Entries.ProductBarcode
+  //      WHERE Entries.ID = ?
+  //      ''', [id]
+  //  );
+  //  return getEntriesFromMapList(entries)[0];
+  //}
+
 
   Future<Product?> getProduct(String barcode) async {
     final db = await database;
@@ -81,6 +93,15 @@ class DatabaseService {
     else {
       return null;
     }
+  }
+
+  Future<String> getImagePath(String barcode) async {
+    final db = await database;
+    var result = await db.rawQuery(
+      '''SELECT ImagePath FROM Products WHERE Barcode = ?''',
+      [barcode]
+    );
+    return result[0]['ImagePath'] as String;
   }
 
   Future<List<Product>> getProducts() async {
@@ -138,5 +159,33 @@ class DatabaseService {
     final db = await database;
     db.delete('Entries', where: 'Barcode = ?', whereArgs: [barcode]);
     db.delete('Products', where: 'Barcode = ?', whereArgs: [barcode]);
+  }
+
+  Future<void> updateEntry(String endDate, int id, int count) async {
+    final db = await database;
+    db.rawQuery(
+      '''UPDATE Entries SET Qty = ?, EndDate = ? WHERE ID = ?''',
+      [count, endDate, id]
+    );
+  }
+
+  Future<void> updateProduct(Product oldProduct, Product newProduct) async {
+    final db = await database;
+    if (oldProduct.barcode != newProduct.barcode) {
+      await db.rawQuery(
+        '''INSERT INTO Products SELECT ?, ?, ? FROM Products WHERE Barcode = ?''',
+        [newProduct.name, newProduct.imagePath, newProduct.barcode, oldProduct.barcode]
+      );
+      await db.rawQuery(
+        '''UPDATE Entries SET ProductBarcode = ? WHERE ProductBarcode = ?''',
+        [newProduct.barcode, oldProduct.barcode]
+      );
+    } else {
+      await db.rawQuery(
+        '''UPDATE Products SET Name = ?, ImagePath = ? WHERE Barcode = ?''',
+        [newProduct.name, newProduct.imagePath, oldProduct.barcode]
+      );
+    }
+
   }
 }
