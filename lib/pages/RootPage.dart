@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:practice_two/models/Product.dart';
+import 'package:practice_two/pages/AddProductPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 import 'package:practice_two/pages/AllProductList.dart';
 import 'package:practice_two/pages/AddEntryPage.dart';
 import 'package:practice_two/pages/ExpiredProductsList.dart';
 import 'package:practice_two/pages/ProductListPage.dart';
+
 import 'package:practice_two/pages/EnterBarcodePage.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
@@ -45,6 +47,10 @@ class _RootPageState extends State<RootPage> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => AddEntryPage(product: result))
               ).then((_) {setState(() {});}) ;
               }
+            }
+            else {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductPage())
+              ).then((_) {setState(() {});}) ;
             }
 
             },
@@ -88,5 +94,6 @@ class _RootPageState extends State<RootPage> {
     }
     return Text(index.toString());
   }
+
 }
 

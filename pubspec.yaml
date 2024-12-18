@@ -41,6 +41,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   number_selector: ^1.0.7
   intl: ^0.19.0
+  image_picker: any
   flutter_localization: ^0.2.0
   flutter_localizations:
     sdk: flutter  
