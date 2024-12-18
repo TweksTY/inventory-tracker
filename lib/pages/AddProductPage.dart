@@ -17,13 +17,14 @@ class AddProductPage extends StatefulWidget {
 }
 
 class _AddProductPageState extends State<AddProductPage> {
-  String? path;
-  String? name;
-  static const String defaultName = "";
-  static const String defaultPath = "assets/images/test.jpg";
+  String? _path;
+  String? _name;
+  static const String _defaultName = "";
+  static const String _defaultPath = "assets/images/default.png";
   late int value = 1;
   late DateTime dateTime;
-  final TextEditingController _dateTimeController = TextEditingController();
+  final TextEditingController _NameController = TextEditingController();
+  final TextEditingController _BarcodeController = TextEditingController();
 
 
   @override
@@ -39,6 +40,7 @@ class _AddProductPageState extends State<AddProductPage> {
             child: Column(
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
                       onTap: () async {
@@ -68,22 +70,41 @@ class _AddProductPageState extends State<AddProductPage> {
                           print("Не вдалося завантажити зображення");
                           return;
                         }
-                        File tmpFile = File(image?.path ?? defaultPath);
+                        File tmpFile = File(image?.path ?? _defaultPath);
                         String newFilePath = join(await getApplicationDocumentsDirectory().then((dir)  {return dir.path;}), '${DateTime.now().toString()}${extension(tmpFile.path)}');
                         image?.saveTo(newFilePath);
                         print(newFilePath);
                         setState(() {
-                          path = newFilePath;
+                          _path = newFilePath;
                         });
                       }
                       },
                       child: getImage()
+
+                    ),
+                    Expanded(child: Padding(padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    child: TextFormField(
+                      controller: _NameController,
+                      decoration: const InputDecoration(
+                          label: Text("Введіть ім'я"),
+                          //enabledBorder: OutlineInputBorder(),
+                          border: OutlineInputBorder()
+                      ),))
 
                     )
 
                     //Expanded(child: Padding(padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),child: Text(widget.product.name, maxLines: 2, softWrap: true,),))
                   ],
                 ),
+                Row(children: [
+                Expanded(child: TextFormField(
+                controller: _BarcodeController,
+                  decoration: const InputDecoration(
+                      label: Text("Введіть штрихкод"),
+                      //enabledBorder: OutlineInputBorder(),
+                      border: OutlineInputBorder()
+                  ),))
+                ]),
 //                Row(
 //                  children: [Expanded(
 //                      child: Padding(
@@ -171,26 +192,45 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   Widget getImage() {
-    if (path == null) {
-      return const Image(
-        height: 150,
+    if (_path == null) {
+      return Container(
         width: 150,
-        fit: BoxFit.fitHeight,
-        image: AssetImage(defaultPath),
+        height: 150,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            fit: BoxFit.scaleDown,
+            image: AssetImage(_defaultPath),
+          ),
+          border: Border.all(
+            color: Colors.black,
+            width: 5
+          )
+        ),
       );
     }
     else {
-      return Image.file(File(path ?? defaultPath),
-
-        height: 150,
+      return Container(
         width: 150,
-        fit: BoxFit.fitHeight,);
+        height: 150,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: Image.file(File(_path ?? _defaultPath)).image,
+            ),
+            border: Border.all(
+                color: Colors.black,
+                width: 2
+            )
+        ),
+      );
     }
   }
+
 
   @override
   void dispose() {
     super.dispose();
-    _dateTimeController.dispose();
+    _NameController.dispose();
+    _BarcodeController.dispose();
   }
 }
