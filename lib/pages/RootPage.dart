@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:practice_two/models/Product.dart';
-import 'package:practice_two/pages/AddProductPage.dart';
-import 'package:practice_two/services/DatabaseService.dart';
-import 'package:practice_two/pages/EntryListPage.dart';
 import 'package:practice_two/pages/AddEntryPage.dart';
-import 'package:practice_two/pages/ProductListPage.dart';
-
+import 'package:practice_two/pages/AddProductPage.dart';
 import 'package:practice_two/pages/EnterBarcodePage.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:practice_two/pages/EntryListPage.dart';
+import 'package:practice_two/pages/ProductListPage.dart';
+import 'package:practice_two/services/DatabaseService.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -17,18 +15,17 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
-  final pageController = PageController(
-    initialPage: 0
-  );
+  final pageController = PageController(initialPage: 0);
   final db = DatabaseService.instance;
-  final screenNames = <String>["Наявні продукти", "Прострочені продукти", "Усі продукти"];
+  final screenNames = <String>[
+    "Наявні продукти",
+    "Прострочені продукти",
+    "Усі продукти"
+  ];
   late int currentIndex = 0;
 
-
   void update() {
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   @override
@@ -37,12 +34,17 @@ class _RootPageState extends State<RootPage> {
       appBar: AppBar(
         title: Text(screenNames[currentIndex]),
       ),
-
       body: PageView(
         controller: pageController,
         children: [
-          EntryListPage(entries: db.getEntries(), updateFunction: update,),
-          EntryListPage(entries: db.getExpiredEntries(), updateFunction: update,),
+          EntryListPage(
+            entries: db.getEntries(),
+            updateFunction: update,
+          ),
+          EntryListPage(
+            entries: db.getExpiredEntries(),
+            updateFunction: update,
+          ),
           ProductListPage(entries: db.getProducts(), updateFunction: update)
         ],
         onPageChanged: (int pageNumber) {
@@ -52,28 +54,37 @@ class _RootPageState extends State<RootPage> {
           });
         },
       ),
-
       floatingActionButton: Visibility(
         visible: currentIndex == 0 || currentIndex == 2 ? true : false,
         child: FloatingActionButton(
-          onPressed: () async{
+          onPressed: () async {
             if (currentIndex == 0) {
-            //int productIndex = -1;
-            //String barcodeScanResult = await FlutterBarcodeScanner.scanBarcode("#000000", "Ввести вручну", true, ScanMode.BARCODE);
-            //if (barcodeScanResult == (-1).toString()) {
-                String? barcodeEnterResult = await Navigator.push(context, MaterialPageRoute(builder: (context) => const EnterBarcodePage()));
-            Product? result = await db.getProduct(barcodeEnterResult!);
-            if (result != null) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AddEntryPage(product: result))
-              ).then((_) {setState(() {});}) ;
+              //int productIndex = -1;
+              //String barcodeScanResult = await FlutterBarcodeScanner.scanBarcode("#000000", "Ввести вручну", true, ScanMode.BARCODE);
+              //if (barcodeScanResult == (-1).toString()) {
+              String? barcodeEnterResult = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const EnterBarcodePage()));
+              Product? result = await db.getProduct(barcodeEnterResult!);
+              if (result != null) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            AddEntryPage(product: result))).then((_) {
+                  setState(() {});
+                });
               }
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AddProductPage())).then((_) {
+                setState(() {});
+              });
             }
-            else {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const AddProductPage())
-              ).then((_) {setState(() {});}) ;
-            }
-
-            },
+          },
           child: const Icon(Icons.add),
         ),
       ),
@@ -95,14 +106,12 @@ class _RootPageState extends State<RootPage> {
         currentIndex: currentIndex,
         onTap: (index) => {
           setState(() {
-            pageController.animateToPage(index, duration: Duration(milliseconds: 250), curve: Curves.easeIn);
+            pageController.animateToPage(index,
+                duration: const Duration(milliseconds: 250), curve: Curves.easeIn);
             currentIndex = index;
-          })},
+          })
+        },
       ),
-
     );
   }
-
-
 }
-

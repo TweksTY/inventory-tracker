@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
 
-Widget getImage(String? path) {
+import 'package:flutter/material.dart';
 
+Widget getImage(String? path) {
   if (path == null) {
     return Container(
       width: 150,
@@ -12,14 +12,9 @@ Widget getImage(String? path) {
             fit: BoxFit.fill,
             image: AssetImage("assets/images/defaultAdd.png"),
           ),
-          border: Border.all(
-              color: Colors.black,
-              width: 1
-          )
-      ),
+          border: Border.all(color: Colors.black, width: 1)),
     );
-  }
-  else {
+  } else {
     return Container(
       width: 150,
       height: 150,
@@ -28,11 +23,7 @@ Widget getImage(String? path) {
             fit: BoxFit.fill,
             image: Image.file(File(path)).image,
           ),
-          border: Border.all(
-              color: Colors.black,
-              width: 2
-          )
-      ),
+          border: Border.all(color: Colors.black, width: 2)),
     );
   }
 }

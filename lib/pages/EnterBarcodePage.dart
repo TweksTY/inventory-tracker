@@ -5,7 +5,6 @@ class EnterBarcodePage extends StatefulWidget {
 
   @override
   State<EnterBarcodePage> createState() => _EnterBarcodePageState();
-
 }
 
 class _EnterBarcodePageState extends State<EnterBarcodePage> {
@@ -27,18 +26,24 @@ class _EnterBarcodePageState extends State<EnterBarcodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
+      children: [
+        Expanded(
+            child: Row(
           children: [
-            Expanded(child: Row(
-              children: [
-                Expanded(child: TextField(
-                  controller: _controller,
-                )),
-                Expanded(child: TextButton(onPressed: () => {Navigator.pop(context, _controller.value.text)}, child: const Center(child: Text("Submit"),)))
-              ],
-            ))
+            Expanded(
+                child: TextField(
+              controller: _controller,
+            )),
+            Expanded(
+                child: TextButton(
+                    onPressed: () =>
+                        {Navigator.pop(context, _controller.value.text)},
+                    child: const Center(
+                      child: Text("Submit"),
+                    )))
           ],
-        )
-    );
-
+        ))
+      ],
+    ));
   }
 }
