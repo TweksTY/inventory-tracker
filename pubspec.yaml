@@ -75,6 +75,7 @@ flutter:
   assets:
       - assets/images/test.jpg
       - assets/images/default.png
+      - assets/images/defaultAdd.png
       - assets/images/scanIcon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

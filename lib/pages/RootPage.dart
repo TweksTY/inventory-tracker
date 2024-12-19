@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/pages/AddProductPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
-import 'package:practice_two/pages/AllProductList.dart';
+import 'package:practice_two/pages/EntryListPage.dart';
 import 'package:practice_two/pages/AddEntryPage.dart';
-import 'package:practice_two/pages/ExpiredProductsList.dart';
 import 'package:practice_two/pages/ProductListPage.dart';
 
 import 'package:practice_two/pages/EnterBarcodePage.dart';
@@ -19,7 +18,7 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   final db = DatabaseService.instance;
-  final screenNames = <String>["Усі продукти", "Прострочені продукти", "Список продуктів"];
+  final screenNames = <String>["Наявні продукти", "Прострочені продукти", "Усі продукти"];
   int currentIndex = 0;
 
   void update() {
@@ -94,9 +93,9 @@ class _RootPageState extends State<RootPage> {
   Widget _getSelectedWidget(BuildContext context, int index) {
     switch(index) {
       case 0:
-        return AllProductList(entries: db.getEntries(), updateFunction: update,);
+        return EntryListPage(entries: db.getEntries(), updateFunction: update,);
       case 1:
-        return ExpiredProductsList(entries: db.getExpiredEntries());
+        return EntryListPage(entries: db.getExpiredEntries(), updateFunction: update,);
       case 2:
         return ProductListPage(entries: db.getProducts(), updateFunction: update);
     }

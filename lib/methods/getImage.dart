@@ -10,11 +10,11 @@ Widget getImage(String? path) {
       decoration: BoxDecoration(
           image: const DecorationImage(
             fit: BoxFit.fill,
-            image: AssetImage("assets/images/default.png"),
+            image: AssetImage("assets/images/defaultAdd.png"),
           ),
           border: Border.all(
               color: Colors.black,
-              width: 5
+              width: 1
           )
       ),
     );

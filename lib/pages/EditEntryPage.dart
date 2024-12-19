@@ -27,7 +27,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
     super.initState();
     dateTime = widget.entry.endDate;
     _dateTimeController.text = DateFormat("dd.MM.yyyy").format(dateTime);
-    value = widget.entry.count;
+    value = widget.entry.qty;
 
   }
   @override
@@ -35,11 +35,11 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Редактування позиції"),
+        title: const Text("Редагування наявного продукту"),
       ),
       body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(30, 15, 15, 15),
+            padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
             child: Column(
               children: [
                 Row(
@@ -124,6 +124,18 @@ class _EditEntryPageState extends State<EditEntryPage> {
                       Expanded(child: Padding(
                         padding: EdgeInsets.fromLTRB(0, 0, 5, 50),
                         child: MaterialButton(
+                            color: Theme.of(context).colorScheme.error,
+                            textTheme: ButtonTextTheme.primary,
+                            child: Text('Видалити'),
+                            onPressed: () async {
+                              await db.deleteEntry(widget.entry.id);
+                              Navigator.of(context).pop();
+                            }
+                        ),
+                      ) ),
+                      Expanded(child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
+                        child: MaterialButton(
                             color: Theme.of(context).colorScheme.primary,
                             textTheme: ButtonTextTheme.primary,
                             child: Text('Підтвердити'),
@@ -135,18 +147,6 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         ),
                       )
                       ),
-                      Expanded(child: Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
-                        child: MaterialButton(
-                            color: Theme.of(context).colorScheme.error,
-                            textTheme: ButtonTextTheme.primary,
-                            child: Text('Видалити'),
-                            onPressed: () async {
-                              await db.deleteEntry(widget.entry.id);
-                              Navigator.of(context).pop();
-                            }
-                        ),
-                      ) ),
 
                     ],
                   ),

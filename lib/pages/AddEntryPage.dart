@@ -24,11 +24,11 @@ class _AddEntryPageState extends State<AddEntryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Додавання продукту"),
+        title: const Text("Додати до наявних продуктів"),
       ),
       body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(30, 15, 15, 15),
+            padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
             child: Column(
               children: [
                 Row(

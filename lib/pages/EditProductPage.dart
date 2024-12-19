@@ -42,7 +42,7 @@ class _EditProductPageState extends State<EditProductPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Редактування продукту"),
+          title: const Text("Редагування продукту"),
         ),
         body: SafeArea(
           child: Column(
@@ -72,7 +72,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       Expanded(child: TextFormField(
                         controller: _NameController,
                         decoration: const InputDecoration(
-                            label: Text("Введіть ім'я"),
+                            label: Text("Введіть назву"),
                             border: OutlineInputBorder()
                         ),
                       ),
@@ -106,8 +106,21 @@ class _EditProductPageState extends State<EditProductPage> {
                 alignment: FractionalOffset.bottomCenter,
                 child: Row(
                   children: [
+
                     Expanded(child: Padding(
                       padding: EdgeInsets.fromLTRB(5, 0, 5, 50),
+                      child: MaterialButton(
+                          color: Theme.of(context).colorScheme.error,
+                          textTheme: ButtonTextTheme.primary,
+                          child: Text('Видалити'),
+                          onPressed: () async {
+                            await db.deleteProduct(widget.product.barcode);
+                            Navigator.of(context).pop();
+                          }
+                      ),
+                    ) ),
+                    Expanded(child: Padding(
+                      padding: EdgeInsets.fromLTRB(0, 0, 5, 50),
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.primary,
                         textTheme: ButtonTextTheme.primary,
@@ -119,18 +132,6 @@ class _EditProductPageState extends State<EditProductPage> {
                             Navigator.pop(context);
                           }
                         },
-                      ),
-                    ) ),
-                    Expanded(child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 0, 5, 50),
-                      child: MaterialButton(
-                          color: Theme.of(context).colorScheme.error,
-                          textTheme: ButtonTextTheme.primary,
-                          child: Text('Видалити'),
-                          onPressed: () async {
-                            await db.deleteProduct(widget.product.barcode);
-                            Navigator.of(context).pop();
-                          }
                       ),
                     ) ),
 

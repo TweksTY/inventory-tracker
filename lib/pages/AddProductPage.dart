@@ -31,7 +31,7 @@ class _AddProductPageState extends State<AddProductPage> {
       },
         child: Scaffold(
           appBar: AppBar(
-            title: const Text("Додавання продукту"),
+            title: const Text("Додати продукту"),
           ),
           body: SafeArea(
             child: Column(
@@ -61,7 +61,7 @@ class _AddProductPageState extends State<AddProductPage> {
                         Expanded(child: TextFormField(
                           controller: _NameController,
                           decoration: const InputDecoration(
-                              label: Text("Введіть ім'я"),
+                              label: Text("Введіть назву"),
                               border: OutlineInputBorder()
                           ),
                         ),
@@ -76,7 +76,7 @@ class _AddProductPageState extends State<AddProductPage> {
                         Expanded(child: TextFormField(
                           controller: _BarcodeController,
                           decoration: const InputDecoration(
-                              label: Text("Введіть штрихкод"),
+                              label: Text("Введіть назву"),
                               border: OutlineInputBorder()
                           ),
                         ),

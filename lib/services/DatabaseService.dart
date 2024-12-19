@@ -48,14 +48,18 @@ class DatabaseService {
 
   Future<List<Entry>> getEntries() async {
     final db = await database;
-    print('enter');
     List<Map<String, Object?>> entries = await db.rawQuery(
       '''SELECT Products.Name, Products.Barcode, Entries.EndDate, Entries.Qty, Products.ImagePath, Entries.ID
         FROM Entries
         JOIN Products ON Products.Barcode = Entries.ProductBarcode;'''
     );
-    print('exit');
-    return getEntriesFromMapList(entries);
+    print('aboba');
+    var res = [
+      for (var map in entries) Entry.fromMap(map)
+    ];
+    print('aboba');
+
+    return res;
   }
 
   Future<List<Entry>> getExpiredEntries() async {
@@ -68,7 +72,9 @@ class DatabaseService {
         ORDER BY Entries.EndDate ASC;
         '''
     );
-    return getEntriesFromMapList(entries);
+    return [
+      for (var map in entries) Entry.fromMap(map)
+    ];
   }
 
   //Future<Entry> getEntry(int id) async {
@@ -134,20 +140,6 @@ class DatabaseService {
     });
   }
 
-  // TODO: Transfer to Entry class
-  List<Entry> getEntriesFromMapList(List<Map<String, Object?>> entries) {
-    return [
-      for (final {
-      'Name' : name as String,
-      'Barcode' : barcode as String,
-      'EndDate' : endDate as String,
-      'Qty' : qty as int?,
-      'ImagePath' : imagePath as String?,
-      'ID' : id as int
-      } in entries)
-        Entry(name, barcode, DateTime.parse(endDate), qty ?? 0, imagePath: imagePath, id: id)
-    ];
-  }
   
   Future<void> deleteEntry(int id) async {
     final db = await database;
