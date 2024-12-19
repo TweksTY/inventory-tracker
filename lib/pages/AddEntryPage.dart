@@ -18,6 +18,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
   late int value = 1;
   late DateTime dateTime;
   final TextEditingController _dateTimeController = TextEditingController();
+  final DatabaseService db = DatabaseService.instance;
   @override
   Widget build(BuildContext context) {
 
@@ -84,7 +85,6 @@ class _AddEntryPageState extends State<AddEntryPage> {
                   children: [
                     Expanded(
                       child: TextFormField(
-                        //initialValue: DateFormat.yMd().format(DateTime.now()),
                         controller: _dateTimeController,
                         enabled: false,
                         showCursor: false,
@@ -105,21 +105,45 @@ class _AddEntryPageState extends State<AddEntryPage> {
                         , child: const Icon(Icons.edit_calendar))
                   ],
                 ),
-                Row(
-                  children: [Expanded(child: ElevatedButton(
-                    onPressed: () {
-                      final db = DatabaseService.instance;
-                      db.addEntry(widget.product.barcode, dateTime, value);
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Підтвердити"),
-                  ))],
-                )
+                Expanded(child: Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: Row(
+                    children: [
+                      Expanded(child: Padding(
+                        padding: EdgeInsets.fromLTRB(5, 0, 5, 50),
+                        child: MaterialButton(
+                          color: Theme.of(context).colorScheme.primary,
+                          textTheme: ButtonTextTheme.primary,
+                          child: Text('Підтвердити'),
+                          onPressed: () async {
+                            DatabaseService db = DatabaseService.instance;
+                            String result = await validateData();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
+                            if (result == "a") {
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      ) )
+
+                    ],
+                  ),
+                ))
               ],
             ),
           )
       ),
     );
+  }
+
+  Future<String> validateData() async {
+    if (value > 0 && _dateTimeController.text != null) {
+      await db.addEntry(widget.product.barcode, DateFormat("y-M-d").format(dateTime), value);
+      return "a";
+    }
+    else {
+      return "b";
+    }
   }
 
   @override

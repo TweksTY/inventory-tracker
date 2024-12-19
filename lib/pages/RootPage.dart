@@ -44,19 +44,20 @@ class _RootPageState extends State<RootPage> {
             //int productIndex = -1;
             //String barcodeScanResult = await FlutterBarcodeScanner.scanBarcode("#000000", "Ввести вручну", true, ScanMode.BARCODE);
             //if (barcodeScanResult == (-1).toString()) {
-            //  String? barcodeEnterResult = await Navigator.push(context, MaterialPageRoute(builder: (context) => const EnterBarcodePage.dart()));
+
+              String? barcodeEnterResult = await Navigator.push(context, MaterialPageRoute(builder: (context) => const EnterBarcodePage()));
             //  productIndex = products.indexWhere((element) =>  element.barcode.compareTo(barcodeEnterResult ?? "") == 0);
             //}  else {
             //  productIndex = products.indexWhere((element) =>  element.barcode.compareTo(barcodeScanResult) == 0);
             //}
-            Product? result = await db.getProduct('12345');
+            Product? result = await db.getProduct(barcodeEnterResult!);
             if (result != null) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => AddEntryPage(product: result))
               ).then((_) {setState(() {});}) ;
               }
             }
             else {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => AddProductPage())
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AddProductPage())
               ).then((_) {setState(() {});}) ;
             }
 
@@ -97,7 +98,7 @@ class _RootPageState extends State<RootPage> {
       case 1:
         return ExpiredProductsList(entries: db.getExpiredEntries());
       case 2:
-        return ProductListPage(entries: db.getProducts());
+        return ProductListPage(entries: db.getProducts(), updateFunction: update);
     }
     return Text(index.toString());
   }

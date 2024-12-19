@@ -117,16 +117,41 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         , child: const Icon(Icons.edit_calendar))
                   ],
                 ),
-                Row(
-                  children: [Expanded(child: ElevatedButton(
-                    onPressed: () {
-                      print(value);
-                      db.updateEntry(DateFormat("y-M-d").format(dateTime), widget.entry.id, value);
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Підтвердити"),
-                  ))],
-                )
+                Expanded(child: Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: Row(
+                    children: [
+                      Expanded(child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0, 5, 50),
+                        child: MaterialButton(
+                            color: Theme.of(context).colorScheme.primary,
+                            textTheme: ButtonTextTheme.primary,
+                            child: Text('Підтвердити'),
+                            onPressed: () async {
+                              print(value);
+                              await db.updateEntry(DateFormat("y-M-d").format(dateTime), widget.entry.id, value);
+                              Navigator.pop(context);
+                            }
+                        ),
+                      )
+                      ),
+                      Expanded(child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
+                        child: MaterialButton(
+                            color: Theme.of(context).colorScheme.error,
+                            textTheme: ButtonTextTheme.primary,
+                            child: Text('Видалити'),
+                            onPressed: () async {
+                              await db.deleteEntry(widget.entry.id);
+                              Navigator.of(context).pop();
+                            }
+                        ),
+                      ) ),
+
+                    ],
+                  ),
+                ))
+
               ],
             ),
           )

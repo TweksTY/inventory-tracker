@@ -125,11 +125,11 @@ class DatabaseService {
   }
 
 
-  Future<void> addEntry(String barcode, DateTime endDate, int qty) async {
+  Future<void> addEntry(String barcode, String endDate, int qty) async {
     final db = await database;
     await db.insert('Entries', {
       'ProductBarcode' : barcode,
-      'EndDate' : DateFormat("y-M-d").format(endDate),
+      'EndDate' : endDate,
       'Qty' : qty
     });
   }
@@ -151,19 +151,19 @@ class DatabaseService {
   
   Future<void> deleteEntry(int id) async {
     final db = await database;
-    db.delete('Entries', where: 'ID = ?', whereArgs: [id]);
+    await db.delete('Entries', where: 'ID = ?', whereArgs: [id]);
   }
 
   
-  void deleteProduct(String barcode) async {
+  Future<void> deleteProduct(String barcode) async {
     final db = await database;
-    db.delete('Entries', where: 'Barcode = ?', whereArgs: [barcode]);
-    db.delete('Products', where: 'Barcode = ?', whereArgs: [barcode]);
+    await db.delete('Entries', where: 'ProductBarcode = ?', whereArgs: [barcode]);
+    await db.delete('Products', where: 'Barcode = ?', whereArgs: [barcode]);
   }
 
   Future<void> updateEntry(String endDate, int id, int count) async {
     final db = await database;
-    db.rawQuery(
+    await db.rawQuery(
       '''UPDATE Entries SET Qty = ?, EndDate = ? WHERE ID = ?''',
       [count, endDate, id]
     );
@@ -174,12 +174,13 @@ class DatabaseService {
     if (oldProduct.barcode != newProduct.barcode) {
       await db.rawQuery(
         '''INSERT INTO Products SELECT ?, ?, ? FROM Products WHERE Barcode = ?''',
-        [newProduct.name, newProduct.imagePath, newProduct.barcode, oldProduct.barcode]
+        [newProduct.name, newProduct.barcode, newProduct.imagePath, oldProduct.barcode]
       );
       await db.rawQuery(
         '''UPDATE Entries SET ProductBarcode = ? WHERE ProductBarcode = ?''',
         [newProduct.barcode, oldProduct.barcode]
       );
+      await db.delete('Products', where: 'Barcode = ?', whereArgs: [oldProduct.barcode]);
     } else {
       await db.rawQuery(
         '''UPDATE Products SET Name = ?, ImagePath = ? WHERE Barcode = ?''',

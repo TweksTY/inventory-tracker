@@ -5,9 +5,10 @@ import 'package:practice_two/methods/getImageForList.dart';
 import 'package:practice_two/pages/EditEntryPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 class AllProductList extends StatefulWidget {
-  final Future<List<Entry>> entries;
+  //final Future<List<Entry>> entries;
   final Function updateFunction;
-  const AllProductList({required this.entries, required this.updateFunction, super.key});
+  final Future<List<Entry>> entries;
+  const AllProductList({required this.entries,required this.updateFunction, super.key});
 
 
   @override
@@ -15,14 +16,8 @@ class AllProductList extends StatefulWidget {
 }
 
 class _AllProductListState extends State<AllProductList> {
-  late Future<List<Entry>> entries;
   DatabaseService db = DatabaseService.instance;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    entries = db.getEntries();
-  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Entry>>(
@@ -36,7 +31,7 @@ class _AllProductListState extends State<AllProductList> {
                       return ListTile(
                         onTap: () async {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => EditEntryPage(entry: snapshot.data![index]))
-                          ).then((_) {setState(() {entries = db.getEntries();}); widget.updateFunction();});
+                          ).then((_) {setState(() {}); widget.updateFunction();});
                           //await db.deleteEntry(data[index].id);
 
                         },

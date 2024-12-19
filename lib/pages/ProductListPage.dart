@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:practice_two/methods/getImageForList.dart';
 import 'package:practice_two/models/Product.dart';
+import 'package:practice_two/pages/EditProductPage.dart';
 
 class ProductListPage extends StatefulWidget {
   final Future<List<Product>> entries;
-  const ProductListPage({required this.entries, super.key});
+  final Function updateFunction;
+  const ProductListPage({required this.entries, required this.updateFunction, super.key});
 
 
   @override
@@ -26,6 +28,12 @@ class _ProductListPageState extends State<ProductListPage> {
                 child: ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
                       return ListTile(
+                        onTap: () async {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditProductPage(product: snapshot.data![index]))
+                          ).then((_) {setState(() {widget.updateFunction();});});
+                          //await db.deleteEntry(data[index].id);
+
+                        },
                         leading: CircleAvatar(
                           backgroundImage: getImage(data?[index].imagePath),
                         ),

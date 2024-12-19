@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:path/path.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/methods/getImage.dart';
@@ -53,7 +54,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       ]
                   ),
                 ),
-                Padding(padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+                Padding(padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -79,7 +80,13 @@ class _AddProductPageState extends State<AddProductPage> {
                               border: OutlineInputBorder()
                           ),
                         ),
-                        )
+                        ),
+                        IconButton(icon: const Icon(Icons.barcode_reader), onPressed: () async {
+                          String barcodeScanResult = await FlutterBarcodeScanner.scanBarcode("#000000", "Відмінити", true, ScanMode.BARCODE);
+                          if (barcodeScanResult != "-1") {
+                            _BarcodeController.text = barcodeScanResult;
+                          }
+                        })
                       ]
                   ),
                 ),
@@ -88,8 +95,10 @@ class _AddProductPageState extends State<AddProductPage> {
                   child: Row(
                     children: [
                       Expanded(child: Padding(
-                        padding: EdgeInsets.fromLTRB(5, 0, 5, 15),
-                        child: ElevatedButton(
+                        padding: EdgeInsets.fromLTRB(5, 0, 5, 50),
+                        child: MaterialButton(
+                          color: Theme.of(context).colorScheme.primary,
+                          textTheme: ButtonTextTheme.primary,
                           child: Text('Підтвердити'),
                           onPressed: () async {
                             String result = await validateData();
@@ -206,7 +215,7 @@ class _AddProductPageState extends State<AddProductPage> {
       return "Помилка. Поле штрихкоду порожнє";
     }
     if (await db.checkIfProductExists(barcode)) {
-      return 'Помилка. Товар з таким штрихкодом вже інсує';
+      return 'Помилка. Товар з таким штрихкодом вже існує';
     }
     else {
       db.addProduct(Product(name, _path, barcode));
