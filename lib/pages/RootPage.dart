@@ -17,9 +17,13 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
+  final pageController = PageController(
+    initialPage: 0
+  );
   final db = DatabaseService.instance;
   final screenNames = <String>["Наявні продукти", "Прострочені продукти", "Усі продукти"];
-  int currentIndex = 0;
+  late int currentIndex = 0;
+
 
   void update() {
     setState(() {
@@ -34,7 +38,21 @@ class _RootPageState extends State<RootPage> {
         title: Text(screenNames[currentIndex]),
       ),
 
-      body: _getSelectedWidget(context, currentIndex),
+      body: PageView(
+        controller: pageController,
+        children: [
+          EntryListPage(entries: db.getEntries(), updateFunction: update,),
+          EntryListPage(entries: db.getExpiredEntries(), updateFunction: update,),
+          ProductListPage(entries: db.getProducts(), updateFunction: update)
+        ],
+        onPageChanged: (int pageNumber) {
+          print(pageNumber);
+          setState(() {
+            currentIndex = pageNumber;
+          });
+        },
+      ),
+
       floatingActionButton: Visibility(
         visible: currentIndex == 0 || currentIndex == 2 ? true : false,
         child: FloatingActionButton(
@@ -43,12 +61,7 @@ class _RootPageState extends State<RootPage> {
             //int productIndex = -1;
             //String barcodeScanResult = await FlutterBarcodeScanner.scanBarcode("#000000", "Ввести вручну", true, ScanMode.BARCODE);
             //if (barcodeScanResult == (-1).toString()) {
-
-              String? barcodeEnterResult = await Navigator.push(context, MaterialPageRoute(builder: (context) => const EnterBarcodePage()));
-            //  productIndex = products.indexWhere((element) =>  element.barcode.compareTo(barcodeEnterResult ?? "") == 0);
-            //}  else {
-            //  productIndex = products.indexWhere((element) =>  element.barcode.compareTo(barcodeScanResult) == 0);
-            //}
+                String? barcodeEnterResult = await Navigator.push(context, MaterialPageRoute(builder: (context) => const EnterBarcodePage()));
             Product? result = await db.getProduct(barcodeEnterResult!);
             if (result != null) {
               Navigator.push(context, MaterialPageRoute(builder: (context) => AddEntryPage(product: result))
@@ -82,6 +95,7 @@ class _RootPageState extends State<RootPage> {
         currentIndex: currentIndex,
         onTap: (index) => {
           setState(() {
+            pageController.animateToPage(index, duration: Duration(milliseconds: 250), curve: Curves.easeIn);
             currentIndex = index;
           })},
       ),
@@ -89,18 +103,6 @@ class _RootPageState extends State<RootPage> {
     );
   }
 
-
-  Widget _getSelectedWidget(BuildContext context, int index) {
-    switch(index) {
-      case 0:
-        return EntryListPage(entries: db.getEntries(), updateFunction: update,);
-      case 1:
-        return EntryListPage(entries: db.getExpiredEntries(), updateFunction: update,);
-      case 2:
-        return ProductListPage(entries: db.getProducts(), updateFunction: update);
-    }
-    return Text(index.toString());
-  }
 
 }
 
