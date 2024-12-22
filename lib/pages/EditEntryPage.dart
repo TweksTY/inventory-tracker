@@ -6,6 +6,8 @@ import 'package:number_selector/number_selector.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
+/// сторінка для редагування наявного товару
+/// вхідні дані: наявний продукт, що потрібно відредагувати
 class EditEntryPage extends StatefulWidget {
   final Entry entry;
 
@@ -23,7 +25,6 @@ class _EditEntryPageState extends State<EditEntryPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     dateTime = widget.entry.endDate;
     _dateTimeController.text = DateFormat("dd.MM.yyyy").format(dateTime);
@@ -153,11 +154,12 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         textTheme: ButtonTextTheme.primary,
                         child: const Text('Підтвердити'),
                         onPressed: () async {
-                          print(value);
                           await db.updateEntry(
                               DateFormat("y-M-d").format(dateTime),
                               widget.entry.id,
                               value);
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(content: Text("Наявний продукт змінено!")));
                           Navigator.pop(context);
                         }),
                   )),
@@ -170,6 +172,10 @@ class _EditEntryPageState extends State<EditEntryPage> {
     );
   }
 
+  /// функція для отримання ImageProvider в залежності від шляху
+  /// вхідні дані: шлях до зображення
+  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
+  /// зображення, до якого веде шлях у іншому випадку
   Widget getImage(String? path) {
     if (path == null) {
       return Container(
@@ -195,7 +201,6 @@ class _EditEntryPageState extends State<EditEntryPage> {
       );
     }
   }
-
 
   @override
   void dispose() {

@@ -1,10 +1,13 @@
+
 import 'package:flutter/material.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/pages/EditEntryPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 import 'dart:io';
 
+/// Сторінка, що містить список наявних товарів
 class EntryListPage extends StatefulWidget {
+  // функція для оновлення батьківського віджету
   final Function updateFunction;
   final Future<List<Entry>> entries;
 
@@ -63,7 +66,7 @@ class _EntryListPageState extends State<EntryListPage> {
                     },
                     itemCount: data!.length));
           } else {
-            return SizedBox(
+            return const SizedBox(
               width: 60,
               height: 60,
               child: CircularProgressIndicator(),
@@ -72,23 +75,29 @@ class _EntryListPageState extends State<EntryListPage> {
         });
   }
 
-
+  /// метод для відкриття діалогу для видалення наявного продукту
+  /// та отримання його результату
+  /// вихідні дані: true якщо користувач хоче видалити продукт, false - якщо ні,
+  /// null - якщо діалог було закрита
   Future<bool?> openDismissDialog(BuildContext context) async {
     bool? result = await showDialog<bool>(context: context, builder: (context) {
       return AlertDialog(
-        title: Text("Підтвердження видалення"),
-        content: Text("Ви впевнені що хочете видалити цей продукт з наявних?"),
+        title: const Text("Підтвердження видалення"),
+        content: const Text("Ви впевнені що хочете видалити цей продукт з наявних?"),
         actions: [
-          TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text('Ні')),
-          TextButton(onPressed: () {Navigator.of(context).pop(true);}, child: Text('Так')),],
+          TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: const Text('Ні')),
+          TextButton(onPressed: () {Navigator.of(context).pop(true);}, child: const Text('Так')),],
 
       );
     });
     return result;
   }
 
-
-  getImage(String? path) {
+  /// функція для отримання ImageProvider в залежності від шляху
+  /// вхідні дані: шлях до зображення
+  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
+  /// зображення, до якого веде шлях у іншому випадку
+  ImageProvider getImage(String? path) {
     return path == null
         ? const AssetImage("assets/images/default.png")
         : Image.file(File(path)).image;

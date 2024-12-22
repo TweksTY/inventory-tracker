@@ -56,7 +56,8 @@ class DatabaseService {
     List<Map<String, Object?>> entries = await db.rawQuery(
         '''SELECT Products.Name, Products.Barcode, Entries.EndDate, Entries.Qty, Products.ImagePath, Entries.ID
         FROM Entries
-        JOIN Products ON Products.Barcode = Entries.ProductBarcode;''');
+        JOIN Products ON Products.Barcode = Entries.ProductBarcode
+        ORDER BY Entries.EndDate;''');
     var res = [for (var map in entries) Entry.fromMap(map)];
 
     return res;
@@ -158,39 +159,13 @@ class DatabaseService {
     
   }
 
-  /// метод для оновлення даних про продукт, якщо при цьому
-  /// вхідні дані:
+  /// метод для оновлення даних про продукт
+  /// вхідні дані: об'єкт Product, що містить старі дані про продукт, та об'єкт, що містить нові дані про продукт
   Future<void> updateProduct(Product oldProduct, Product newProduct) async {
     final db = await database;
     await db.rawUpdate('UPDATE Products SET Name = ?, Barcode = ?, ImagePath = ? WHERE Barcode = ?',
     [newProduct.name, newProduct.barcode, newProduct.imagePath, oldProduct.barcode]
     );
-    //await db.update('Products', {
-    //  'Name' : newProduct.name,
-    //  'Barcode' : newProduct.barcode,
-    //  'ImagePath' : newProduct.imagePath
-    //},
-    //where: 'Barcode = ?',
-    //whereArgs: [oldProduct.barcode]);
-    //if (oldProduct.barcode != newProduct.barcode) {
 
-      //await db.transaction((txn) async {
-      //  await txn.rawInsert(
-      //      '''INSERT INTO Products SELECT ?, ?, ? FROM Products WHERE Barcode = ?''',
-      //      [
-      //        newProduct.name,
-      //        newProduct.barcode,
-      //        newProduct.imagePath,
-      //        oldProduct.barcode
-      //      ]);
-//
-      //  await txn.rawUpdate(
-      //      '''UPDATE Entries SET ProductBarcode = ? WHERE ProductBarcode = ?''',
-      //      [newProduct.barcode, oldProduct.barcode]);
-      //  await db.delete('Products',
-      //      where: 'Barcode = ?', whereArgs: [oldProduct.barcode]);
-      //});
-      
-    //}
   }
 }

@@ -1,3 +1,10 @@
+/// клас, що являє собою модель наявного продукту
+/// name - назва продукту
+/// barcode - штрихкод продукту
+/// endDate - дата закінчення строку
+/// qty - кількість товару
+/// imagePath - шлях до зображення або null
+/// id - номер запису про наявний продукт
 class Entry {
   String name = 'Product name';
   String barcode = '0000000';
@@ -10,7 +17,6 @@ class Entry {
       {required this.id, this.imagePath});
 
   Entry.fromMap(var map) {
-    print(map);
     name = map['Name'] as String;
     barcode = map['Barcode'] as String;
     endDate = DateTime.parse(map['EndDate']);
@@ -19,9 +25,11 @@ class Entry {
     id = map['ID'] as int;
   }
 
+  /// метод для отримання коректного повідомлення про кількість днів,
+  /// що залишилися до кінця строку
   String getDateMessage() {
     int difference = endDate.difference(DateTime.now()).inDays;
-    String daysMessage = getDays(difference.abs());
+    String daysMessage = _getDays(difference.abs());
     switch (difference) {
       case 0:
         return "Строк закінчується сьогодні";
@@ -34,7 +42,7 @@ class Entry {
     }
   }
 
-  String getDays(int days) {
+  String _getDays(int days) {
     switch (days) {
       case 1:
         return 'день';

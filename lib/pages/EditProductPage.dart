@@ -19,9 +19,11 @@ class EditProductPage extends StatefulWidget {
 
 class _EditProductPageState extends State<EditProductPage> {
   String? _path;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool _isBarcodeUnique = true;
   final TextEditingController _NameController = TextEditingController();
   final TextEditingController _BarcodeController = TextEditingController();
-  final DatabaseService db = DatabaseService.instance;
+  final DatabaseService _db = DatabaseService.instance;
 
   @override
   void initState() {
@@ -44,110 +46,135 @@ class _EditProductPageState extends State<EditProductPage> {
           title: const Text("Редагування продукту"),
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      const Text(
-                        'Оберіть зображення:',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      GestureDetector(
-                          onTap: () async {
-                            await pickImage(context);
-                          },
-                          child: getImage(_path))
-                    ]),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _NameController,
-                          decoration: const InputDecoration(
-                              label: Text("Введіть назву"),
-                              border: OutlineInputBorder()),
+          child: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const Text(
+                          'Оберіть зображення:',
+                          style: TextStyle(fontSize: 20),
                         ),
-                      )
-                    ]),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
-                child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _BarcodeController,
-                          decoration: const InputDecoration(
-                              label: Text("Введіть штрихкод"),
-                              border: OutlineInputBorder()),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.barcode_reader),
-                        onPressed: () async {
-                          String barcodeScanResult =
-                              await FlutterBarcodeScanner.scanBarcode("#000000",
-                                  "Відмінити", true, ScanMode.BARCODE);
-                          if (barcodeScanResult != "-1") {
-                            _BarcodeController.text = barcodeScanResult;
-                          }
-                        },
-                      )
-                    ]),
-              ),
-              Expanded(
-                  child: Align(
-                alignment: FractionalOffset.bottomCenter,
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5, 0, 5, 50),
-                      child: MaterialButton(
-                          color: Theme.of(context).colorScheme.error,
-                          textTheme: ButtonTextTheme.primary,
-                          child: const Text('Видалити'),
-                          onPressed: () async {
-                            await db.deleteProduct(widget.product.barcode);
-                            Navigator.of(context).pop();
-                          }),
-                    )),
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 5, 50),
-                      child: MaterialButton(
-                        color: Theme.of(context).colorScheme.primary,
-                        textTheme: ButtonTextTheme.primary,
-                        child: const Text('Підтвердити'),
-                        onPressed: () async {
-                          String result = await validateData();
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text(result)));
-                          if (result == "Дані про продукт успішно оновлено!") {
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
-                    )),
-                  ],
+                        GestureDetector(
+                            onTap: () async {
+                              await pickImage(context);
+                            },
+                            child: getImage(_path))
+                      ]),
                 ),
-              ))
-            ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _NameController,
+                            validator: (value) {if (value == null || value.isEmpty) return "Це поле обов'язково"; return null;},
+                            decoration: const InputDecoration(
+                                label: Text("Введіть назву"),
+                                border: OutlineInputBorder()),
+                          ),
+                        )
+                      ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _BarcodeController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return "Це поле обов'язково";
+                              if (!_isBarcodeUnique) return "Продукт з таким штрихкодом вже існує";
+                              return null;
+                            },
+                            onChanged: (barcode) async {
+                              bool check = await isBarcodeNotUnique(barcode);
+                              if (check) {
+                                setState(() {
+                                  _isBarcodeUnique = false;
+                                });
+                              }
+                              else {
+                                _isBarcodeUnique = true;
+                              }
+
+                            },
+                            decoration: const InputDecoration(
+                                label: Text("Введіть штрихкод"),
+                                border: OutlineInputBorder()),
+                          ),
+                        ),
+                        IconButton(
+                            icon: const Icon(Icons.barcode_reader),
+                            onPressed: () async {
+                              String barcodeScanResult =
+                              await FlutterBarcodeScanner.scanBarcode(
+                                  "#000000",
+                                  "Відмінити",
+                                  true,
+                                  ScanMode.BARCODE);
+                              if (barcodeScanResult != "-1") {
+                                _BarcodeController.text = barcodeScanResult;
+                              }
+                            })
+                      ]),
+                ),
+                Expanded(
+                    child: Align(
+                      alignment: FractionalOffset.bottomCenter,
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(5, 0, 5, 50),
+                                child: MaterialButton(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  textTheme: ButtonTextTheme.primary,
+                                  child: const Text('Підтвердити'),
+                                  onPressed: () async {
+                                    bool validationResult = formKey.currentState?.validate() ?? false;
+                                    if (!validationResult) {
+                                      return;
+                                    }
+                                    else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(content: Text("Продукт змінено!")));
+                                      _db.addProduct(Product(_NameController.text, _path, _BarcodeController.text));
+                                      Navigator.pop(context);
+                                    }
+
+                                  },
+                                ),
+                              ))
+                        ],
+                      ),
+                    ))
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  /// метод для перевірки наявності товару з введеним штрихкодом
+  /// вхідні дані: штрихкод
+  /// вихідні дані: результат перевірки
+  Future<bool> isBarcodeNotUnique(String barcode) async {
+    DatabaseService db = DatabaseService.instance;
+    return (barcode != widget.product.barcode && await db.checkIfProductExists(barcode)) ;
+  }
+
+  /// метод для надання можливості додавання нового зображення
   Future<void> pickImage(context) async {
     String? result = await showModalBottomSheet(
         context: context,
@@ -207,7 +234,6 @@ class _EditProductPageState extends State<EditProductPage> {
           source:
               result == "camera" ? ImageSource.camera : ImageSource.gallery);
       if (image == null) {
-        print("Не вдалося завантажити зображення");
         return;
       }
       deleteCurrentImage();
@@ -218,13 +244,13 @@ class _EditProductPageState extends State<EditProductPage> {
           }),
           '${DateTime.now().toString()}${extension(tmpFile.path)}');
       image.saveTo(newFilePath);
-      print(newFilePath);
       setState(() {
         _path = newFilePath;
       });
     }
   }
 
+  // метод для видалення старого зображення
   void deleteOriginalImage() {
     if (_path != widget.product.imagePath && widget.product.imagePath != null) {
       File img = File(widget.product.imagePath!);
@@ -235,6 +261,7 @@ class _EditProductPageState extends State<EditProductPage> {
     }
   }
 
+  // метод для видалення поточного зображення за його наявності
   void deleteCurrentImage() {
     if (_path == widget.product.imagePath) {
       setState(() {
@@ -252,25 +279,10 @@ class _EditProductPageState extends State<EditProductPage> {
     }
   }
 
-  Future<String> validateData() async {
-    String name = _NameController.text;
-    String barcode = _BarcodeController.text;
-    if (name == "") {
-      return "Помилка. Некоректне ім'я продукта";
-    }
-    if (barcode == "") {
-      return "Помилка. Поле штрихкоду порожнє";
-    }
-    if (barcode != widget.product.barcode &&
-        await db.checkIfProductExists(barcode)) {
-      return 'Помилка. Товар з таким штрихкодом вже існує';
-    } else {
-      await db.updateProduct(widget.product, Product(name, _path, barcode));
-      deleteOriginalImage();
-      return "Дані про продукт успішно оновлено!";
-    }
-  }
-
+  /// функція для отримання ImageProvider в залежності від шляху
+  /// вхідні дані: шлях до зображення
+  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
+  /// зображення, до якого веде шлях у іншому випадку
   Widget getImage(String? path) {
     if (path == null) {
       return Container(
