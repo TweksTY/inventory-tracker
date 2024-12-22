@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:number_selector/number_selector.dart';
-import 'package:practice_two/methods/getImage.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
@@ -114,13 +115,12 @@ class _EditEntryPageState extends State<EditEntryPage> {
                 ),
                 TextButton(
                     onPressed: () async {
-                      dateTime = await showDatePicker(
+                      dateTime = (await showDatePicker(
                               context: context,
                               locale: const Locale('ru', 'RU'),
-                              firstDate: DateTime.now(),
+                              firstDate: DateTime.now().subtract(const Duration(days: 5)),
                               lastDate: DateTime.now()
-                                  .add(const Duration(days: 5000))) ??
-                          DateTime.now();
+                                  .add(const Duration(days: 800))))!;
                       _dateTimeController.text =
                           DateFormat("dd.MM.yyyy").format(dateTime);
                       setState(() {});
@@ -169,6 +169,33 @@ class _EditEntryPageState extends State<EditEntryPage> {
       )),
     );
   }
+
+  Widget getImage(String? path) {
+    if (path == null) {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+            image: const DecorationImage(
+              fit: BoxFit.fill,
+              image: AssetImage("assets/images/default.png"),
+            ),
+            border: Border.all(color: Colors.black, width: 1)),
+      );
+    } else {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: Image.file(File(path)).image,
+            ),
+            border: Border.all(color: Colors.black, width: 1)),
+      );
+    }
+  }
+
 
   @override
   void dispose() {

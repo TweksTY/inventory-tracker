@@ -23,7 +23,7 @@ Widget getImage(String? path) {
             fit: BoxFit.fill,
             image: Image.file(File(path)).image,
           ),
-          border: Border.all(color: Colors.black, width: 2)),
+          border: Border.all(color: Colors.black, width: 1)),
     );
   }
 }

@@ -106,8 +106,11 @@ class _RootPageState extends State<RootPage> {
         currentIndex: currentIndex,
         onTap: (index) => {
           setState(() {
-            pageController.animateToPage(index,
-                duration: const Duration(milliseconds: 250), curve: Curves.easeIn);
+            print('a');
+            pageController.jumpToPage(index);
+            //pageController.animateToPage(index,
+                //duration: const Duration(milliseconds: 500), curve: Curves.easeIn);
+            print('b');
             currentIndex = index;
           })
         },

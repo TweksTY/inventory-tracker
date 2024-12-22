@@ -5,7 +5,6 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:practice_two/methods/getImage.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
@@ -76,7 +75,7 @@ class _AddProductPageState extends State<AddProductPage> {
                         child: TextFormField(
                           controller: _BarcodeController,
                           decoration: const InputDecoration(
-                              label: Text("Введіть назву"),
+                              label: Text("Введіть штрихкод"),
                               border: OutlineInputBorder()),
                         ),
                       ),
@@ -233,6 +232,33 @@ class _AddProductPageState extends State<AddProductPage> {
       return "Продукт успішно додано!";
     }
   }
+
+  Widget getImage(String? path) {
+    if (path == null) {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+            image: const DecorationImage(
+              fit: BoxFit.fill,
+              image: AssetImage("assets/images/defaultAdd.png"),
+            ),
+            border: Border.all(color: Colors.black, width: 1)),
+      );
+    } else {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: Image.file(File(path)).image,
+            ),
+            border: Border.all(color: Colors.black, width: 1)),
+      );
+    }
+  }
+
 
   @override
   void dispose() {

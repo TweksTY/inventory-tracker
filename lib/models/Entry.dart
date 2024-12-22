@@ -10,6 +10,7 @@ class Entry {
       {required this.id, this.imagePath});
 
   Entry.fromMap(var map) {
+    print(map);
     name = map['Name'] as String;
     barcode = map['Barcode'] as String;
     endDate = DateTime.parse(map['EndDate']);
@@ -20,14 +21,16 @@ class Entry {
 
   String getDateMessage() {
     int difference = endDate.difference(DateTime.now()).inDays;
-    String daysMessage = getDays(difference);
+    String daysMessage = getDays(difference.abs());
     switch (difference) {
       case 0:
         return "Строк закінчується сьогодні";
       case > 0:
-        return "Строк закінчиться через $difference $daysMessage";
+        return "Строк закінчиться через ${difference.abs()} $daysMessage";
+      case < 0:
+        return "Прострочено на ${difference.abs()} $daysMessage";
       default:
-        return "Прострочено на $difference $daysMessage";
+        return "Невідомий строк";
     }
   }
 

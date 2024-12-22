@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:practice_two/methods/getImageForList.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/pages/EditEntryPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
+import 'dart:io';
 
 class EntryListPage extends StatefulWidget {
   final Function updateFunction;
@@ -28,23 +28,34 @@ class _EntryListPageState extends State<EntryListPage> {
             return SafeArea(
                 child: ListView.separated(
                     itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        onTap: () async {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditEntryPage(
-                                      entry: snapshot.data![index]))).then((_) {
-                            setState(() {});
-                            widget.updateFunction();
+                      return Dismissible(
+                        key: ObjectKey(snapshot.data![index]),
+                        background: Container(color: Colors.red,),
+                        onDismissed: (DismissDirection direction) {
+                          setState(() {
+                            db.deleteEntry(snapshot.data![index].id);
+                            snapshot.data?.removeAt(index);
                           });
                         },
-                        leading: CircleAvatar(
-                          backgroundImage: getImage(data[index].imagePath),
+                        confirmDismiss: (DismissDirection direction) {return openDismissDialog(context);},
+                        child: ListTile(
+                          onTap: () async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditEntryPage(
+                                        entry: snapshot.data![index]))).then((_) {
+                              setState(() {});
+                              widget.updateFunction();
+                            });
+                          },
+                          leading: CircleAvatar(
+                            backgroundImage: getImage(data[index].imagePath),
+                          ),
+                          title: Text(data[index].name),
+                          subtitle: Text('Кількість: ${data[index].qty}\n'
+                              '${data[index].getDateMessage()}'),
                         ),
-                        title: Text(data[index].name),
-                        subtitle: Text('Кількість: ${data[index].qty}\n'
-                            '${data[index].getDateMessage()}'),
                       );
                     },
                     separatorBuilder: (context, index) {
@@ -52,8 +63,37 @@ class _EntryListPageState extends State<EntryListPage> {
                     },
                     itemCount: data!.length));
           } else {
-            return const Text("Завантаження...");
+            return SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(),
+            );
           }
         });
   }
+
+
+  Future<bool?> openDismissDialog(BuildContext context) async {
+    bool? result = await showDialog<bool>(context: context, builder: (context) {
+      return AlertDialog(
+        title: Text("Підтвердження видалення"),
+        content: Text("Ви впевнені що хочете видалити цей продукт з наявних?"),
+        actions: [
+          TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: Text('Ні')),
+          TextButton(onPressed: () {Navigator.of(context).pop(true);}, child: Text('Так')),],
+
+      );
+    });
+    return result;
+  }
+
+
+  getImage(String? path) {
+    return path == null
+        ? const AssetImage("assets/images/default.png")
+        : Image.file(File(path)).image;
+  }
+
+
+
 }

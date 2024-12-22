@@ -1,7 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:number_selector/number_selector.dart';
-import 'package:practice_two/methods/getImage.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
@@ -158,6 +159,33 @@ class _AddEntryPageState extends State<AddEntryPage> {
       return "b";
     }
   }
+
+  Widget getImage(String? path) {
+    if (path == null) {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+            image: const DecorationImage(
+              fit: BoxFit.fill,
+              image: AssetImage("assets/images/default.png"),
+            ),
+            border: Border.all(color: Colors.black, width: 1)),
+      );
+    } else {
+      return Container(
+        width: 150,
+        height: 150,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: Image.file(File(path)).image,
+            ),
+            border: Border.all(color: Colors.black, width: 1)),
+      );
+    }
+  }
+
 
   @override
   void dispose() {
