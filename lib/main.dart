@@ -3,14 +3,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:practice_two/pages/RootPage.dart';
-import 'package:practice_two/services/DatabaseService.dart';
-import 'package:sqflite/sqflite.dart';
 
+
+
+/// головна функція додатку
+/// виконує попередні налаштування та запускає основну сторінку
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Intl.defaultLocale = 'ru_RU';
-  DatabaseService db = DatabaseService.instance;
-  Database db1 = await db.database;
   initializeDateFormatting('ru_RU', null).then((_) => runApp(const MaterialApp(
           localizationsDelegates: [
             GlobalMaterialLocalizations.delegate,

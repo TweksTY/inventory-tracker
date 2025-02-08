@@ -27,7 +27,6 @@ class _EditProductPageState extends State<EditProductPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _NameController.text = widget.product.name;
     _BarcodeController.text = widget.product.barcode;
@@ -133,6 +132,20 @@ class _EditProductPageState extends State<EditProductPage> {
                       alignment: FractionalOffset.bottomCenter,
                       child: Row(
                         children: [
+                          Expanded(child: Padding(
+                            padding: EdgeInsets.fromLTRB(5, 0, 0, 50),
+                            child: MaterialButton(
+                                color: Theme.of(context).colorScheme.error,
+                                textTheme: ButtonTextTheme.primary,
+                                child: Text('Видалити'),
+                                onPressed: () async {
+                                  await _db.deleteProduct(widget.product.barcode);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(content: Text("Продукт видалено!")));
+                                  Navigator.of(context).pop();
+                                }
+                            ),
+                          ) ),
                           Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 50),
@@ -148,7 +161,7 @@ class _EditProductPageState extends State<EditProductPage> {
                                     else {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(content: Text("Продукт змінено!")));
-                                      _db.addProduct(Product(_NameController.text, _path, _BarcodeController.text));
+                                      _db.updateProduct(widget.product, Product(_NameController.text, _path, _BarcodeController.text));
                                       Navigator.pop(context);
                                     }
 

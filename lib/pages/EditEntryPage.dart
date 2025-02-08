@@ -143,6 +143,8 @@ class _EditEntryPageState extends State<EditEntryPage> {
                         child: const Text('Видалити'),
                         onPressed: () async {
                           await db.deleteEntry(widget.entry.id);
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(content: Text("Продукт видалено!")));
                           Navigator.of(context).pop();
                         }),
                   )),

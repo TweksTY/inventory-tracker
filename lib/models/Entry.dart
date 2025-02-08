@@ -16,10 +16,12 @@ class Entry {
   Entry(this.name, this.barcode, this.endDate, this.qty,
       {required this.id, this.imagePath});
 
-  Entry.fromMap(var map) {
+  // конструктор для створення об'єкту з відображення
+  // вхідні дані: відображення
+  Entry.fromMap(Map<String, Object?> map) {
     name = map['Name'] as String;
     barcode = map['Barcode'] as String;
-    endDate = DateTime.parse(map['EndDate']);
+    endDate = DateTime.parse(map['EndDate'] as String);
     qty = map['Qty'] as int;
     imagePath = map['ImagePath'] as String?;
     id = map['ID'] as int;
