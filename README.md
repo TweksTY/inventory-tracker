@@ -1,6 +1,6 @@
-# Product Expiry Tracker
+# Store Inventory Tracker
 
-A Flutter mobile app for tracking household products by barcode, quantity, and expiration date. Built as a university practice project with local SQLite storage and camera barcode scanning.
+A Flutter mobile app for tracking store inventory by barcode, quantity, and expiration date. Built as a university practice project with local SQLite storage and camera barcode scanning.
 
 ## Features
 
