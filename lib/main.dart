@@ -13,7 +13,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Intl.defaultLocale = 'en';
   await initializeDateFormatting('en');
-  await DatabaseService.instance.seedDemoDataIfEmpty();
   runApp(const MaterialApp(
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
