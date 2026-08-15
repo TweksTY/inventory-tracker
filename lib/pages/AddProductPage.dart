@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
-/// сторінка для додавання нового продукту
+/// Page for adding a new product to the catalog
 class AddProductPage extends StatefulWidget {
   const AddProductPage({super.key});
 
@@ -32,7 +32,7 @@ class _AddProductPageState extends State<AddProductPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Додати продукт"),
+          title: const Text("Add product"),
         ),
         body: SafeArea(
           child: Form(
@@ -46,7 +46,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         const Text(
-                          'Оберіть зображення:',
+                          'Choose an image:',
                           style: TextStyle(fontSize: 20),
                         ),
                         GestureDetector(
@@ -64,9 +64,9 @@ class _AddProductPageState extends State<AddProductPage> {
                         Expanded(
                           child: TextFormField(
                             controller: _NameController,
-                            validator: (value) {if (value == null || value.isEmpty) return "Це поле обов'язково"; return null;},
+                            validator: (value) {if (value == null || value.isEmpty) return "This field is required"; return null;},
                             decoration: const InputDecoration(
-                                label: Text("Введіть назву"),
+                                label: Text("Enter name"),
                                 border: OutlineInputBorder()),
                           ),
                         )
@@ -81,8 +81,8 @@ class _AddProductPageState extends State<AddProductPage> {
                           child: TextFormField(
                             controller: _BarcodeController,
                             validator: (value) {
-                              if (value == null || value.isEmpty) return "Це поле обов'язково";
-                              if (!_isBarcodeUnique) return "Продукт з таким штрихкодом вже існує";
+                              if (value == null || value.isEmpty) return "This field is required";
+                              if (!_isBarcodeUnique) return "A product with this barcode already exists";
                               return null;
                               },
                             onChanged: (barcode) async {
@@ -98,7 +98,7 @@ class _AddProductPageState extends State<AddProductPage> {
 
                             },
                             decoration: const InputDecoration(
-                                label: Text("Введіть штрихкод"),
+                                label: Text("Enter barcode"),
                                 border: OutlineInputBorder()),
                           ),
                         ),
@@ -108,7 +108,7 @@ class _AddProductPageState extends State<AddProductPage> {
                               String barcodeScanResult =
                                   await FlutterBarcodeScanner.scanBarcode(
                                       "#000000",
-                                      "Відмінити",
+                                      "Cancel",
                                       true,
                                       ScanMode.BARCODE);
                               if (barcodeScanResult != "-1") {
@@ -128,7 +128,7 @@ class _AddProductPageState extends State<AddProductPage> {
                         child: MaterialButton(
                           color: Theme.of(context).colorScheme.primary,
                           textTheme: ButtonTextTheme.primary,
-                          child: const Text('Підтвердити'),
+                          child: const Text('Confirm'),
                           onPressed: () async {
                             bool validationResult = formKey.currentState?.validate() ?? false;
                             if (!validationResult) {
@@ -136,7 +136,7 @@ class _AddProductPageState extends State<AddProductPage> {
                             }
                               else {
                               ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(content: Text("Продукт успішно додано!")));
+                                  .showSnackBar(SnackBar(content: Text("Product added successfully!")));
                               _db.addProduct(Product(_NameController.text, _path, _BarcodeController.text));
                               Navigator.pop(context);
                               }
@@ -155,7 +155,7 @@ class _AddProductPageState extends State<AddProductPage> {
     );
   }
 
-  /// метод для надання можливості додавання нового зображення
+  /// Lets the user add a new product image
   Future<void> pickImage(context) async {
     String? result = await showModalBottomSheet(
         context: context,
@@ -172,7 +172,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.surface,
-                        child: const Text("Зробити фото"),
+                        child: const Text("Take a photo"),
                         onPressed: () async {
                           Navigator.pop(context, "camera");
                         },
@@ -183,7 +183,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.surface,
-                        child: const Text("Обрати фото з галереї"),
+                        child: const Text("Choose from gallery"),
                         onPressed: () async {
                           Navigator.pop(context, "gallery");
                         },
@@ -194,7 +194,7 @@ class _AddProductPageState extends State<AddProductPage> {
                       padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.surface,
-                        child: const Text("Видалити фото"),
+                        child: const Text("Remove photo"),
                         onPressed: () async {
                           Navigator.pop(context, "delete");
                         },
@@ -204,26 +204,25 @@ class _AddProductPageState extends State<AddProductPage> {
                 ))
               ]),
             ));
-    // якщо діалог було закрито - не робимо нічого
+    // If the dialog was dismissed, do nothing
     if (result == null) {
       return;
     }
-    // якщо користувач натиснув кнопку видалити - видаляємо зображення
+    // If the user chose delete, remove the current image
     if (result == "delete") {
       deleteCurrentImage();
       return;
-      /// у іншому випадку надаємо можливість обрати зображення в залежості
-      /// від вибору користувача
+      /// Otherwise let the user pick an image based on their choice
     } else {
       XFile? image = await ImagePicker().pickImage(
           source:
               result == "camera" ? ImageSource.camera : ImageSource.gallery);
-      /// якщо не вдалося обрати зображення - нічого не робимо
+      /// If no image was selected, do nothing
       if (image == null) {
         return;
       }
-      /// у іншому випадку видаляємо поточне зображення та
-      /// копіюємо обране зображення у директорію дотатку
+      /// Otherwise delete the current image and
+      /// copy the selected one into the app documents directory
       deleteCurrentImage();
       File tmpFile = File(image.path);
       String newFilePath = join(
@@ -238,7 +237,7 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  // метод для видалення поточного зображення за його наявності
+  // Deletes the current image file if one exists
   void deleteCurrentImage() {
     if (_path != null) {
       File img = File(_path!);
@@ -252,10 +251,9 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
 
-  /// функція для отримання ImageProvider в залежності від шляху
-  /// вхідні дані: шлях до зображення
-  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
-  /// зображення, до якого веде шлях у іншому випадку
+  /// Returns an image widget based on the given path.
+  /// Input: image path
+  /// Output: default image if path is null, otherwise the image at that path
   Widget getImage(String? path) {
     if (path == null) {
       return Container(
@@ -282,9 +280,9 @@ class _AddProductPageState extends State<AddProductPage> {
     }
   }
 
-  /// метод для перевірки наявності товару з введеним штрихкодом
-  /// вхідні дані: штрихкод
-  /// вихідні дані: результат перевірки
+  /// Checks whether a product with the entered barcode already exists.
+  /// Input: barcode
+  /// Output: check result
   Future<bool> isBarcodeNotUnique(String barcode) async {
     DatabaseService db = DatabaseService.instance;
     return await db.checkIfProductExists(barcode);

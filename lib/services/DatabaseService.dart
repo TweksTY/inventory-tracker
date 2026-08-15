@@ -1,11 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:sqflite/sqflite.dart';
 
-// Сервіс, що допомогає в роботі з базою даних
+// Service that helps work with the database
 class DatabaseService {
   static Database? _db;
+  static String? _databasePath;
   static final DatabaseService instance = DatabaseService._constructor();
 
   DatabaseService._constructor();
@@ -16,9 +18,27 @@ class DatabaseService {
     return _db!;
   }
 
-  // метод, що відкриває або створює базу даних
+  /// Points the singleton at a temporary database path (for unit tests).
+  @visibleForTesting
+  static Future<void> setUpForTest(String path) async {
+    await _db?.close();
+    _db = null;
+    _databasePath = path;
+  }
+
+  /// Closes and clears the test database override.
+  @visibleForTesting
+  static Future<void> tearDownForTest() async {
+    await _db?.close();
+    _db = null;
+    _databasePath = null;
+  }
+
+  // Opens an existing database or creates a new one
   Future<Database> _getDatabase() async {
-    final db = openDatabase(join(await getDatabasesPath(), 'products_db.db'),
+    final path =
+        _databasePath ?? join(await getDatabasesPath(), 'products_db.db');
+    final db = openDatabase(path,
         onCreate: (db, version) async {
       await db.execute('CREATE TABLE Products('
           'Name TEXT NOT NULL,'
@@ -42,15 +62,136 @@ class DatabaseService {
     return db;
   }
 
-  /// метод для додавання продуктів у базу даних
-  /// вхідні дані: об'єкт класу Product, який потрібно додати
+  String _dateOffset(int days) {
+    final date = DateTime.now().add(Duration(days: days));
+    final y = date.year.toString().padLeft(4, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final d = date.day.toString().padLeft(2, '0');
+    return '$y-$m-$d';
+  }
+
+  /// Inserts sample products and stock entries when the catalog is empty.
+  /// Useful for demos and portfolio screenshots. Skipped during unit tests.
+  Future<void> seedDemoDataIfEmpty() async {
+    if (_databasePath != null) return;
+
+    final db = await database;
+    final count = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM Products'),
+        ) ??
+        0;
+    if (count > 0) return;
+
+    final samples = <Map<String, Object?>>[
+      {
+        'Name': 'Organic Whole Milk',
+        'Barcode': '482000100001',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(2), 'Qty': 2},
+          {'EndDate': _dateOffset(5), 'Qty': 1},
+        ],
+      },
+      {
+        'Name': 'Greek Yogurt',
+        'Barcode': '482000100002',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(0), 'Qty': 3},
+        ],
+      },
+      {
+        'Name': 'Sourdough Bread',
+        'Barcode': '482000100003',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(-2), 'Qty': 1},
+        ],
+      },
+      {
+        'Name': 'Free-Range Eggs',
+        'Barcode': '482000100004',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(12), 'Qty': 10},
+        ],
+      },
+      {
+        'Name': 'Orange Juice',
+        'Barcode': '482000100005',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(4), 'Qty': 2},
+        ],
+      },
+      {
+        'Name': 'Cheddar Cheese',
+        'Barcode': '482000100006',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(-5), 'Qty': 1},
+        ],
+      },
+      {
+        'Name': 'Salted Butter',
+        'Barcode': '482000100007',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(20), 'Qty': 2},
+        ],
+      },
+      {
+        'Name': 'Tomato Pasta Sauce',
+        'Barcode': '482000100008',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(45), 'Qty': 4},
+        ],
+      },
+      {
+        'Name': 'Green Tea',
+        'Barcode': '482000100009',
+        'ImagePath': null,
+        'entries': <Map<String, Object?>>[],
+      },
+      {
+        'Name': 'Dark Chocolate',
+        'Barcode': '482000100010',
+        'ImagePath': null,
+        'entries': [
+          {'EndDate': _dateOffset(90), 'Qty': 3},
+        ],
+      },
+    ];
+
+    final batch = db.batch();
+    for (final sample in samples) {
+      batch.insert('Products', {
+        'Name': sample['Name'],
+        'Barcode': sample['Barcode'],
+        'ImagePath': sample['ImagePath'],
+      });
+      final entries = sample['entries'] as List<Map<String, Object?>>;
+      for (final entry in entries) {
+        batch.insert('Entries', {
+          'ProductBarcode': sample['Barcode'],
+          'EndDate': entry['EndDate'],
+          'Qty': entry['Qty'],
+        });
+      }
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Adds a product to the database.
+  /// Input: Product object to insert
   Future<void> addProduct(Product product) async {
     final db = await database;
     await db.insert('Products', product.toMap());
   }
 
-  /// метод для отримання усіх наявних товарів
-  /// вихідні дані: список об'єктів класу Entry, що були отримані з БД
+  /// Returns all in-stock entries.
+  /// Output: list of Entry objects loaded from the database
   Future<List<Entry>> getEntries() async {
     final db = await database;
     List<Map<String, Object?>> entries = await db.rawQuery(
@@ -63,8 +204,8 @@ class DatabaseService {
     return res;
   }
 
-  /// метод для отримання наявних товарів, у який пройшов строк
-  /// вихідні дані: список об'єктів класу Entry, що були отримані з БД
+  /// Returns in-stock entries that have already expired.
+  /// Output: list of Entry objects loaded from the database
   Future<List<Entry>> getExpiredEntries() async {
     final db = await database;
     List<Map<String, Object?>> entries = await db.rawQuery(
@@ -77,9 +218,9 @@ class DatabaseService {
     return [for (var map in entries) Entry.fromMap(map)];
   }
 
-  /// метод для отримання продукту за штрихкодом
-  /// вхідні дані: штрихкод
-  /// вихідні дані: продукт, що було знайдено, або null у іншому випадку
+  /// Looks up a product by barcode.
+  /// Input: barcode
+  /// Output: matching Product, or null if none found
   Future<Product?> getProduct(String barcode) async {
     final db = await database;
     List<Map> products =
@@ -91,9 +232,9 @@ class DatabaseService {
     }
   }
 
-  /// метод для отримання шляху до картинки продукту
-  /// вхідні дані: штрихкод
-  /// вихідні дані: шлях до картинки продукту
+  /// Returns the image path for a product.
+  /// Input: barcode
+  /// Output: product image path
   Future<String> getImagePath(String barcode) async {
     final db = await database;
     var result = await db.rawQuery(
@@ -101,8 +242,8 @@ class DatabaseService {
     return result[0]['ImagePath'] as String;
   }
 
-  /// метод для отримання усіх продуктів з БД
-  /// вихідні дані: список об'єктів класу Product, що були отримані з БД
+  /// Returns all products from the database.
+  /// Output: list of Product objects loaded from the database
   Future<List<Product>> getProducts() async {
     final db = await database;
     List<Map<String, Object?>> products =
@@ -112,9 +253,9 @@ class DatabaseService {
     return [for (var product in products) Product.fromMap(product)];
   }
 
-  /// метод для перевірки наявності продукту з деяким штрихкодом у БД
-  /// вхідні дані: штрихкод
-  /// вихідні дані: true у разі наявності, false у іншому випадку
+  /// Checks whether a product with the given barcode exists.
+  /// Input: barcode
+  /// Output: true if found, false otherwise
   Future<bool> checkIfProductExists(String barcode) async {
     final db = await database;
     List<Map<String, Object?>> products =
@@ -122,31 +263,31 @@ class DatabaseService {
     return products.isNotEmpty;
   }
 
-  /// метод для додавання нового наявного продукту
-  /// вхідні дані: штрихкод продукту, дата кінця строку, кількість
+  /// Adds a new in-stock entry.
+  /// Input: product barcode, expiration date, quantity
   Future<void> addEntry(String barcode, String endDate, int qty) async {
     final db = await database;
     await db.insert(
         'Entries', {'ProductBarcode': barcode, 'EndDate': endDate, 'Qty': qty});
   }
 
-  /// метод для видалення наявного продукту
-  /// вхідні дані: номер наявного продукту
+  /// Deletes an in-stock entry.
+  /// Input: entry id
   Future<void> deleteEntry(int id) async {
     final db = await database;
     await db.delete('Entries', where: 'ID = ?', whereArgs: [id]);
   }
 
-  /// метод для видалення наявного продукту, в процесі також будуть видалені
-  /// усі наявні продукти з таким штрихкодом
-  /// вхідні дані: штрихкод
+  /// Deletes a product; related in-stock entries with the same barcode
+  /// are removed as well (cascade).
+  /// Input: barcode
   Future<void> deleteProduct(String barcode) async {
     final db = await database;
     await db.delete('Products', where: 'Barcode = ?', whereArgs: [barcode]);
   }
 
-  /// метод для оновлення даних про наявний продукт
-  /// вхідні дані: номер продукту, дата кінця строку, кількість
+  /// Updates an in-stock entry.
+  /// Input: entry id, expiration date, quantity
   Future<void> updateEntry(String endDate, int id, int count) async {
     final db = await database;
     await db.update('Entries', {
@@ -159,8 +300,8 @@ class DatabaseService {
     
   }
 
-  /// метод для оновлення даних про продукт
-  /// вхідні дані: об'єкт Product, що містить старі дані про продукт, та об'єкт, що містить нові дані про продукт
+  /// Updates product data.
+  /// Input: Product with the previous data and Product with the new data
   Future<void> updateProduct(Product oldProduct, Product newProduct) async {
     final db = await database;
     await db.rawUpdate('UPDATE Products SET Name = ?, Barcode = ?, ImagePath = ? WHERE Barcode = ?',

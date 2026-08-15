@@ -5,8 +5,8 @@ import 'package:number_selector/number_selector.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
-// сторінка для додавання продукту до наявних
-// вхідні дані: продукт, що додається
+// Page for adding a product to in-stock
+// Input: the product being added
 class AddEntryPage extends StatefulWidget {
   final Product product;
 
@@ -27,7 +27,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Додати до наявних продуктів"),
+        title: const Text("Add to stock"),
       ),
       body: SafeArea(
           child: Padding(
@@ -55,13 +55,13 @@ class _AddEntryPageState extends State<AddEntryPage> {
                   Expanded(
                       child: Padding(
                     padding: const EdgeInsets.only(top: 25),
-                    child: Text(('Штрихкод:\n${widget.product.barcode}')),
+                    child: Text(('Barcode:\n${widget.product.barcode}')),
                   ))
                 ],
               ),
               const Row(
                 children: [
-                  Text("Кількість:"),
+                  Text("Quantity:"),
                 ],
               ),
               Row(
@@ -90,7 +90,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                 children: [
                   Padding(
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                    child: Text("Дійсно до:"),
+                    child: Text("Valid until:"),
                   ),
                 ],
               ),
@@ -103,14 +103,14 @@ class _AddEntryPageState extends State<AddEntryPage> {
                       controller: _dateTimeController,
                       validator: (date) {
                         if (date == null || date.isEmpty) {
-                          return "Поле дати не може бути порожнім";
+                          return "Date is required";
                         }
                         return null;
                       },
                       enabled: false,
                       showCursor: false,
                       decoration: const InputDecoration(
-                          label: Text("Оберіть дату"),
+                          label: Text("Select a date"),
                           //enabledBorder: OutlineInputBorder(),
                           border: OutlineInputBorder()),
                     ),
@@ -145,7 +145,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.primary,
                         textTheme: ButtonTextTheme.primary,
-                        child: const Text('Підтвердити'),
+                        child: const Text('Confirm'),
                         onPressed: () async {
                           bool validationResult = formKey.currentState?.validate() ?? false;
                           if (!validationResult) {
@@ -154,7 +154,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                           await db.addEntry(
                               widget.product.barcode, DateFormat("y-M-d").format(dateTime), value);
                           ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(content: Text("Продукт додано до наявних!")));
+                              .showSnackBar(const SnackBar(content: Text("Product added to stock!")));
                           Navigator.pop(context);
                         },
                       ),
@@ -169,10 +169,9 @@ class _AddEntryPageState extends State<AddEntryPage> {
     );
   }
 
-  /// функція для отримання ImageProvider в залежності від шляху
-  /// вхідні дані: шлях до зображення
-  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
-  /// зображення, до якого веде шлях у іншому випадку
+  /// Returns an image widget based on the given path.
+  /// Input: image path
+  /// Output: default image if path is null, otherwise the image at that path
   Widget getImage(String? path) {
     if (path == null) {
       return Container(

@@ -1,7 +1,7 @@
-/// клас, що являє собою модель продукту
-/// name - назва продукту,
-/// imagePath - шлях до картинки продукту або null
-/// barcode - штрихкод продукту
+/// Model for a product in the catalog.
+/// name - product name
+/// imagePath - path to the product image or null
+/// barcode - product barcode
 
 class Product {
   String name = "Product name";
@@ -16,14 +16,14 @@ class Product {
     barcode = p.barcode;
   }
 
-  // конструктор для створення продукту з відображення
+  // Constructor that builds a Product from a database map
   Product.fromMap(map) {
     name = map['Name'];
     imagePath = map['ImagePath'];
     barcode = map['Barcode'];
   }
 
-  // метод для отримання відображення з даних продукту
+  // Converts product data to a map for database insertion
   Map<String, Object?> toMap() {
     return {'Name': name, 'Barcode': barcode, 'ImagePath': imagePath};
   }

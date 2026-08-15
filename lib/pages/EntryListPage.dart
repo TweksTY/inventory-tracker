@@ -5,9 +5,9 @@ import 'package:practice_two/pages/EditEntryPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 import 'dart:io';
 
-/// Сторінка, що містить список наявних товарів
+/// Page that shows the list of in-stock products
 class EntryListPage extends StatefulWidget {
-  // функція для оновлення батьківського віджету
+  // Callback to refresh the parent widget
   final Function updateFunction;
   final Future<List<Entry>> entries;
 
@@ -56,7 +56,7 @@ class _EntryListPageState extends State<EntryListPage> {
                             backgroundImage: getImage(data[index].imagePath),
                           ),
                           title: Text(data[index].name),
-                          subtitle: Text('Кількість: ${data[index].qty}\n'
+                          subtitle: Text('Quantity: ${data[index].qty}\n'
                               '${data[index].getDateMessage()}'),
                         ),
                       );
@@ -75,28 +75,27 @@ class _EntryListPageState extends State<EntryListPage> {
         });
   }
 
-  /// метод для відкриття діалогу для видалення наявного продукту
-  /// та отримання його результату
-  /// вихідні дані: true якщо користувач хоче видалити продукт, false - якщо ні,
-  /// null - якщо діалог було закрита
+  /// Opens a delete confirmation dialog for an in-stock entry
+  /// and returns the user's choice.
+  /// Output: true if the user wants to delete, false if not,
+  /// null if the dialog was dismissed
   Future<bool?> openDismissDialog(BuildContext context) async {
     bool? result = await showDialog<bool>(context: context, builder: (context) {
       return AlertDialog(
-        title: const Text("Підтвердження видалення"),
-        content: const Text("Ви впевнені що хочете видалити цей продукт з наявних?"),
+        title: const Text("Confirm deletion"),
+        content: const Text("Are you sure you want to remove this product from stock?"),
         actions: [
-          TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: const Text('Ні')),
-          TextButton(onPressed: () {Navigator.of(context).pop(true);}, child: const Text('Так')),],
+          TextButton(onPressed: () {Navigator.of(context).pop(false);}, child: const Text('No')),
+          TextButton(onPressed: () {Navigator.of(context).pop(true);}, child: const Text('Yes')),],
 
       );
     });
     return result;
   }
 
-  /// функція для отримання ImageProvider в залежності від шляху
-  /// вхідні дані: шлях до зображення
-  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
-  /// зображення, до якого веде шлях у іншому випадку
+  /// Returns an ImageProvider based on the given path.
+  /// Input: image path
+  /// Output: default image if path is null, otherwise the image at that path
   ImageProvider getImage(String? path) {
     return path == null
         ? const AssetImage("assets/images/default.png")

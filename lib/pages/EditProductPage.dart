@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,7 +42,7 @@ class _EditProductPageState extends State<EditProductPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Редагування продукту"),
+          title: const Text("Edit product"),
         ),
         body: SafeArea(
           child: Form(
@@ -56,7 +56,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         const Text(
-                          'Оберіть зображення:',
+                          'Choose an image:',
                           style: TextStyle(fontSize: 20),
                         ),
                         GestureDetector(
@@ -74,9 +74,9 @@ class _EditProductPageState extends State<EditProductPage> {
                         Expanded(
                           child: TextFormField(
                             controller: _NameController,
-                            validator: (value) {if (value == null || value.isEmpty) return "Це поле обов'язково"; return null;},
+                            validator: (value) {if (value == null || value.isEmpty) return "This field is required"; return null;},
                             decoration: const InputDecoration(
-                                label: Text("Введіть назву"),
+                                label: Text("Enter name"),
                                 border: OutlineInputBorder()),
                           ),
                         )
@@ -91,8 +91,8 @@ class _EditProductPageState extends State<EditProductPage> {
                           child: TextFormField(
                             controller: _BarcodeController,
                             validator: (value) {
-                              if (value == null || value.isEmpty) return "Це поле обов'язково";
-                              if (!_isBarcodeUnique) return "Продукт з таким штрихкодом вже існує";
+                              if (value == null || value.isEmpty) return "This field is required";
+                              if (!_isBarcodeUnique) return "A product with this barcode already exists";
                               return null;
                             },
                             onChanged: (barcode) async {
@@ -108,7 +108,7 @@ class _EditProductPageState extends State<EditProductPage> {
 
                             },
                             decoration: const InputDecoration(
-                                label: Text("Введіть штрихкод"),
+                                label: Text("Enter barcode"),
                                 border: OutlineInputBorder()),
                           ),
                         ),
@@ -118,7 +118,7 @@ class _EditProductPageState extends State<EditProductPage> {
                               String barcodeScanResult =
                               await FlutterBarcodeScanner.scanBarcode(
                                   "#000000",
-                                  "Відмінити",
+                                  "Cancel",
                                   true,
                                   ScanMode.BARCODE);
                               if (barcodeScanResult != "-1") {
@@ -137,11 +137,11 @@ class _EditProductPageState extends State<EditProductPage> {
                             child: MaterialButton(
                                 color: Theme.of(context).colorScheme.error,
                                 textTheme: ButtonTextTheme.primary,
-                                child: Text('Видалити'),
+                                child: Text('Delete'),
                                 onPressed: () async {
                                   await _db.deleteProduct(widget.product.barcode);
                                   ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(content: Text("Продукт видалено!")));
+                                      .showSnackBar(SnackBar(content: Text("Product deleted!")));
                                   Navigator.of(context).pop();
                                 }
                             ),
@@ -152,7 +152,7 @@ class _EditProductPageState extends State<EditProductPage> {
                                 child: MaterialButton(
                                   color: Theme.of(context).colorScheme.primary,
                                   textTheme: ButtonTextTheme.primary,
-                                  child: const Text('Підтвердити'),
+                                  child: const Text('Confirm'),
                                   onPressed: () async {
                                     bool validationResult = formKey.currentState?.validate() ?? false;
                                     if (!validationResult) {
@@ -160,7 +160,7 @@ class _EditProductPageState extends State<EditProductPage> {
                                     }
                                     else {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(content: Text("Продукт змінено!")));
+                                          .showSnackBar(SnackBar(content: Text("Product updated!")));
                                       _db.updateProduct(widget.product, Product(_NameController.text, _path, _BarcodeController.text));
                                       Navigator.pop(context);
                                     }
@@ -179,15 +179,15 @@ class _EditProductPageState extends State<EditProductPage> {
     );
   }
 
-  /// метод для перевірки наявності товару з введеним штрихкодом
-  /// вхідні дані: штрихкод
-  /// вихідні дані: результат перевірки
+  /// Checks whether a product with the entered barcode already exists.
+  /// Input: barcode
+  /// Output: check result
   Future<bool> isBarcodeNotUnique(String barcode) async {
     DatabaseService db = DatabaseService.instance;
     return (barcode != widget.product.barcode && await db.checkIfProductExists(barcode)) ;
   }
 
-  /// метод для надання можливості додавання нового зображення
+  /// Lets the user add or replace a product image
   Future<void> pickImage(context) async {
     String? result = await showModalBottomSheet(
         context: context,
@@ -204,7 +204,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.surface,
-                        child: const Text("Зробити фото"),
+                        child: const Text("Take a photo"),
                         onPressed: () async {
                           Navigator.pop(context, "camera");
                         },
@@ -215,7 +215,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.surface,
-                        child: const Text("Обрати фото з галереї"),
+                        child: const Text("Choose from gallery"),
                         onPressed: () async {
                           Navigator.pop(context, "gallery");
                         },
@@ -226,7 +226,7 @@ class _EditProductPageState extends State<EditProductPage> {
                       padding: const EdgeInsets.fromLTRB(5, 10, 5, 0),
                       child: MaterialButton(
                         color: Theme.of(context).colorScheme.surface,
-                        child: const Text("Видалити фото"),
+                        child: const Text("Remove photo"),
                         onPressed: () async {
                           Navigator.pop(context, "delete");
                         },
@@ -263,7 +263,7 @@ class _EditProductPageState extends State<EditProductPage> {
     }
   }
 
-  // метод для видалення старого зображення
+  // Deletes the original image file if it was replaced
   void deleteOriginalImage() {
     if (_path != widget.product.imagePath && widget.product.imagePath != null) {
       File img = File(widget.product.imagePath!);
@@ -274,7 +274,7 @@ class _EditProductPageState extends State<EditProductPage> {
     }
   }
 
-  // метод для видалення поточного зображення за його наявності
+  // Deletes the current image file if one exists
   void deleteCurrentImage() {
     if (_path == widget.product.imagePath) {
       setState(() {
@@ -292,10 +292,9 @@ class _EditProductPageState extends State<EditProductPage> {
     }
   }
 
-  /// функція для отримання ImageProvider в залежності від шляху
-  /// вхідні дані: шлях до зображення
-  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
-  /// зображення, до якого веде шлях у іншому випадку
+  /// Returns an image widget based on the given path.
+  /// Input: image path
+  /// Output: default image if path is null, otherwise the image at that path
   Widget getImage(String? path) {
     if (path == null) {
       return Container(

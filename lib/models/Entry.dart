@@ -1,10 +1,10 @@
-/// клас, що являє собою модель наявного продукту
-/// name - назва продукту
-/// barcode - штрихкод продукту
-/// endDate - дата закінчення строку
-/// qty - кількість товару
-/// imagePath - шлях до зображення або null
-/// id - номер запису про наявний продукт
+/// Model for an in-stock product entry.
+/// name - product name
+/// barcode - product barcode
+/// endDate - expiration date
+/// qty - quantity
+/// imagePath - image path or null
+/// id - entry record id
 class Entry {
   String name = 'Product name';
   String barcode = '0000000';
@@ -16,8 +16,8 @@ class Entry {
   Entry(this.name, this.barcode, this.endDate, this.qty,
       {required this.id, this.imagePath});
 
-  // конструктор для створення об'єкту з відображення
-  // вхідні дані: відображення
+  // Constructor that builds an Entry from a database map
+  // Input: map row from the query
   Entry.fromMap(Map<String, Object?> map) {
     name = map['Name'] as String;
     barcode = map['Barcode'] as String;
@@ -27,31 +27,24 @@ class Entry {
     id = map['ID'] as int;
   }
 
-  /// метод для отримання коректного повідомлення про кількість днів,
-  /// що залишилися до кінця строку
+  /// Returns a human-readable message about how many days
+  /// remain until (or past) the expiration date.
   String getDateMessage() {
     int difference = endDate.difference(DateTime.now()).inDays;
     String daysMessage = _getDays(difference.abs());
     switch (difference) {
       case 0:
-        return "Строк закінчується сьогодні";
+        return "Expires today";
       case > 0:
-        return "Строк закінчиться через ${difference.abs()} $daysMessage";
+        return "Expires in ${difference.abs()} $daysMessage";
       case < 0:
-        return "Прострочено на ${difference.abs()} $daysMessage";
+        return "Expired ${difference.abs()} $daysMessage ago";
       default:
-        return "Невідомий строк";
+        return "Unknown expiry";
     }
   }
 
   String _getDays(int days) {
-    switch (days) {
-      case 1:
-        return 'день';
-      case >= 2 && < 5:
-        return 'дні';
-      default:
-        return 'днів';
-    }
+    return days == 1 ? 'day' : 'days';
   }
 }

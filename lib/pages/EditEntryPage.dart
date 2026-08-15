@@ -6,8 +6,8 @@ import 'package:number_selector/number_selector.dart';
 import 'package:practice_two/models/Entry.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
-/// сторінка для редагування наявного товару
-/// вхідні дані: наявний продукт, що потрібно відредагувати
+/// Page for editing an in-stock entry.
+/// Input: the entry to edit
 class EditEntryPage extends StatefulWidget {
   final Entry entry;
 
@@ -35,7 +35,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Редагування наявного продукту"),
+        title: const Text("Edit stock entry"),
       ),
       body: SafeArea(
           child: Padding(
@@ -61,13 +61,13 @@ class _EditEntryPageState extends State<EditEntryPage> {
                 Expanded(
                     child: Padding(
                   padding: const EdgeInsets.only(top: 25),
-                  child: Text(('Штрихкод:\n${widget.entry.barcode}')),
+                  child: Text(('Barcode:\n${widget.entry.barcode}')),
                 ))
               ],
             ),
             const Row(
               children: [
-                Text("Кількість:"),
+                Text("Quantity:"),
               ],
             ),
             Row(
@@ -96,7 +96,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                  child: Text("Дійсно до:"),
+                  child: Text("Valid until:"),
                 ),
               ],
             ),
@@ -109,7 +109,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
                     enabled: false,
                     showCursor: false,
                     decoration: const InputDecoration(
-                        label: Text("Оберіть дату"),
+                        label: Text("Select a date"),
                         //enabledBorder: OutlineInputBorder(),
                         border: OutlineInputBorder()),
                   ),
@@ -140,11 +140,11 @@ class _EditEntryPageState extends State<EditEntryPage> {
                     child: MaterialButton(
                         color: Theme.of(context).colorScheme.error,
                         textTheme: ButtonTextTheme.primary,
-                        child: const Text('Видалити'),
+                        child: const Text('Delete'),
                         onPressed: () async {
                           await db.deleteEntry(widget.entry.id);
                           ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text("Продукт видалено!")));
+                              .showSnackBar(SnackBar(content: Text("Product deleted!")));
                           Navigator.of(context).pop();
                         }),
                   )),
@@ -154,14 +154,14 @@ class _EditEntryPageState extends State<EditEntryPage> {
                     child: MaterialButton(
                         color: Theme.of(context).colorScheme.primary,
                         textTheme: ButtonTextTheme.primary,
-                        child: const Text('Підтвердити'),
+                        child: const Text('Confirm'),
                         onPressed: () async {
                           await db.updateEntry(
                               DateFormat("y-M-d").format(dateTime),
                               widget.entry.id,
                               value);
                           ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(content: Text("Наявний продукт змінено!")));
+                              .showSnackBar(const SnackBar(content: Text("Stock entry updated!")));
                           Navigator.pop(context);
                         }),
                   )),
@@ -174,10 +174,9 @@ class _EditEntryPageState extends State<EditEntryPage> {
     );
   }
 
-  /// функція для отримання ImageProvider в залежності від шляху
-  /// вхідні дані: шлях до зображення
-  /// вихідні дані: зображення за замовчуванням, якщо шлях = null,
-  /// зображення, до якого веде шлях у іншому випадку
+  /// Returns an image widget based on the given path.
+  /// Input: image path
+  /// Output: default image if path is null, otherwise the image at that path
   Widget getImage(String? path) {
     if (path == null) {
       return Container(

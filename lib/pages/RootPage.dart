@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_barcode_scanner_plus/flutter_barcode_scanner_plus.dart';
 import 'package:practice_two/models/Product.dart';
 import 'package:practice_two/pages/AddEntryPage.dart';
 import 'package:practice_two/pages/AddProductPage.dart';
@@ -7,7 +7,7 @@ import 'package:practice_two/pages/EntryListPage.dart';
 import 'package:practice_two/pages/ProductListPage.dart';
 import 'package:practice_two/services/DatabaseService.dart';
 
-// сторінка, що містить усі списки
+// Page that hosts all list tabs
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
 
@@ -18,11 +18,11 @@ class RootPage extends StatefulWidget {
 class _RootPageState extends State<RootPage> {
   final pageController = PageController(initialPage: 0);
   final db = DatabaseService.instance;
-  // Список назв підсторінок
+  // Titles of the sub-pages
   final screenNames = <String>[
-    "Наявні продукти",
-    "Прострочені продукти",
-    "Усі продукти"
+    "In stock",
+    "Expired",
+    "All products"
   ];
   late int currentIndex = 0;
 
@@ -59,29 +59,28 @@ class _RootPageState extends State<RootPage> {
         visible: currentIndex == 0 || currentIndex == 2 ? true : false,
         child: FloatingActionButton(
           onPressed: () async {
-            // якщо поточна сторінка - список наявних продуктів
+            // If the current page is the in-stock list
             if (currentIndex == 0) {
               String? barcode;
-              // надаємо можливість відсканувати штрихкод
-              barcode = await FlutterBarcodeScanner.scanBarcode("#000000", "Ввести вручну", true, ScanMode.BARCODE);
-              // якщо штрихкод не вдалося відсканувати - надаємо можливість ввести його
+              // Let the user scan a barcode
+              barcode = await FlutterBarcodeScanner.scanBarcode("#000000", "Enter manually", true, ScanMode.BARCODE);
+              // If scanning failed, allow manual barcode entry
               if (barcode == "-1") {
                 barcode = await showBarcodeEnterDialog(context);
-                // якщо користувач закрив діалог або нажав "відміна" - нічого не робимо
+                // If the user closed the dialog or pressed cancel, do nothing
                 if (barcode == null) {
                   return;
                 }
               }
-              /// якщо якимось чином отримали від користувача штрихкод - отримуємо
-              /// відповідний товар з БД
+              /// Once a barcode is available, look up the matching product in the database
                 Product? result = await db.getProduct(barcode);
-                // якщо товар не знайдено - повідомляємо користувача
+                // If not found, notify the user
                 if (result == null) {
                   ScaffoldMessenger.of(context)
-                      .showSnackBar(const SnackBar(content: const Text("Продукт з таким штрихкодом не знайдено.")));
+                      .showSnackBar(const SnackBar(content: const Text("No product found with this barcode.")));
                   return;
                 }
-                // якщо знайдено - відкриваємо сторінку для додавання товару до наявних
+                // If found, open the page for adding the product to in-stock
                 else {
                   Navigator.push(
                       context,
@@ -92,8 +91,8 @@ class _RootPageState extends State<RootPage> {
                   });
                 }
               }
-            // якщо поточна сторінка - список усіх продуктів
-            // відкриваємо сторінку для додавання нового продукту
+            // If the current page is the full product list,
+            // open the page for adding a new product
             else if (currentIndex == 2) {
               Navigator.push(
                   context,
@@ -132,14 +131,14 @@ class _RootPageState extends State<RootPage> {
     );
   }
 
-  /// функція для виведення діалогу для введення штрихкоду та отримання його результату
-  /// вихідні дані: штрихкод, або null якщо користувач закрив діалог або натиснув "відміна"
+  /// Shows a dialog for manual barcode entry and returns its result.
+  /// Output: barcode, or null if the user closed the dialog or pressed cancel
   Future<String?> showBarcodeEnterDialog(BuildContext context) async {
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     TextEditingController BarcodeController = TextEditingController();
     String? result = await showDialog<String?>(context: context, builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text("Введення штрихкоду"),
+        title: const Text("Enter barcode"),
         content: Form(
           key: formKey,
           child: Column(
@@ -149,7 +148,7 @@ class _RootPageState extends State<RootPage> {
                 controller: BarcodeController,
                 validator: (barcode) {
                   if (barcode == null || barcode.isEmpty) {
-                    return "Це поле обов'язкове";
+                    return "This field is required";
                   } else {
                     return null;
                   }
@@ -159,14 +158,14 @@ class _RootPageState extends State<RootPage> {
                 children: [
                   Expanded(
                       child: TextButton(
-                        child: const Text('Відміна'),
+                        child: const Text('Cancel'),
                         onPressed: () {
                           Navigator.pop(context);
                         },
                       )),
                   Expanded(
                       child: TextButton(
-                        child: const Text('Підтвердити'),
+                        child: const Text('Confirm'),
                         onPressed: () {
                           bool result = formKey.currentState?.validate() ?? false;
                           if (result) {
